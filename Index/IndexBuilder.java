@@ -25,7 +25,7 @@ class IndexBuilder
 {
 	static WordMap index = new WordMap();
     static int document_ID = 1;
-	static int totalFileNum=3;
+	static int totalFileNum=233;
 	
 	public static void main(String[] args) throws IOException{  
 			
@@ -37,7 +37,10 @@ class IndexBuilder
 			index.postingMap = new TreeMap<String,TreeMap<Integer,Integer>> ();
 			
 			//should have for(int j...... j<100)
-			String filename = "data/"+fileNum+".xml";
+			String zero = "0000000";
+			String tmp = Integer.toString(fileNum);
+			tmp = zero.substring(0, 7-tmp.length())+tmp;
+			String filename = "data/"+tmp+".xml";
 			parse(filename);//parse a page and insert into postings
 			//end for
 			
@@ -64,7 +67,7 @@ class IndexBuilder
 				word = word.toLowerCase();
 				if(word.matches("[a-z0-9]+"))//only store word only contain [a~z]
 				{
-					System.out.println(word);
+//					System.out.println(word);
 					index.inSertIntoPostingMap(word, document_ID);//insert into 
 				}
 			}
@@ -115,16 +118,16 @@ class IndexBuilder
 		//merge inverted index
     	//linux sort all the files
     	//generate linux sort command
-    	int sortCount = ((totalFileNum-1)%1000==0)?((totalFileNum-1)/1000):((totalFileNum-1)/1000+1);
+    	int sortCount = ((totalFileNum-1)%100==0)?((totalFileNum-1)/100):((totalFileNum-1)/100+1);
     	System.out.println(sortCount);
     	for(int i=0; i<sortCount; i++)
     	{
     		String command = new String("sort -k1,1d -k2,2n");
-    		for(int j=0; j<1000; j++)
+    		for(int j=0; j<100; j++)
     		{
-    			if((totalFileNum-1)<i*1000+j)
+    			if((totalFileNum-1)<i*100+j)
     				break;
-    			command += " result/inverted_index_"+(i*1000+j)+".txt";
+    			command += " result/inverted_index_"+(i*100+j)+".txt";
     		}
 	    	//System.out.println(command);
 			Process cmdProc = Runtime.getRuntime().exec(command);
@@ -137,9 +140,9 @@ class IndexBuilder
 			fout.close();
     	}
     	String command = new String("sort -k1,1d -k2,2n");
-    	for(int i=0; i<totalFileNum; i++)
+    	for(int i=0; i<sortCount; i++)
     	{
-    		command += " result/inverted_index_"+i+".txt";
+    		command += " result/tmp_index_"+i+".txt";
     	}
     	//System.out.println(command);
 		Process cmdProc = Runtime.getRuntime().exec(command);
@@ -149,7 +152,7 @@ class IndexBuilder
 		
 		int offset=0,startOffset=0,filename=0,chunkNum=0,wordTotalNum=0,docFreq;
 		int[] chunk ;
-		String word[]={"0"};//initialize the first word;
+		String word[]={"1"};//initialize the first word;
 		byte[] metadata, compressedChunk = null;
 		List<Integer> docIDsInList=new ArrayList<Integer>();
 		List<Byte> freqsInList=new ArrayList<Byte>();
@@ -165,19 +168,19 @@ class IndexBuilder
 //				index.inSertIntoLexMap(word[0]); //insert the current word into lexiconMap immediately;
 				//make chunks for the previous word;
 				docFreq=docIDsInList.size(); // the docID number of the given word;
-				chunkNum=(docFreq%64==0)?docFreq/64:docFreq/64+1;
+				chunkNum=(docFreq%128==0)?docFreq/128:docFreq/128+1;
 				startOffset=offset;
-				metadata = new byte[chunkNum];
-				offset += chunkNum;				
+				metadata = new byte[chunkNum];//should edit
+				offset += chunkNum;//should edit
 				for(int i=0; i<chunkNum; i++)
 				{
-					if((i+1)*64 > docFreq)
+					if((i+1)*128 > docFreq)
 					{
-						chunk=new int[docFreq-i*64];
+						chunk=new int[docFreq-i*128];
 
-						chunk[0]=docIDsInList.get(i*64);
-						for (int j=i*64+1;j<docFreq;j++){
-							chunk[j-i*64]=docIDsInList.get(j)-docIDsInList.get(j-1);
+						chunk[0]=docIDsInList.get(i*128);
+						for (int j=i*128+1;j<docFreq;j++){
+							chunk[j-i*128]=docIDsInList.get(j)-docIDsInList.get(j-1);
 						}
 						compressedChunk = VB.VBENCODE(chunk);
 						//should store the compressedChunk
@@ -189,10 +192,10 @@ class IndexBuilder
 					}
 					else
 					{
-						chunk=new int[64];
-						chunk[0]=docIDsInList.get(i*64);
-						for (int j=i*64+1;j<(i+1)*64;j++){
-							chunk[j-i*64]=docIDsInList.get(j)-docIDsInList.get(j-1);
+						chunk=new int[128];
+						chunk[0]=docIDsInList.get(i*128);
+						for (int j=i*128+1;j<(i+1)*128;j++){
+							chunk[j-i*128]=docIDsInList.get(j)-docIDsInList.get(j-1);
 						}
 						compressedChunk = VB.VBENCODE(chunk);
 						//should store the compressedChunk
