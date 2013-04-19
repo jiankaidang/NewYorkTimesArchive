@@ -53,10 +53,26 @@ public class WordMap {
 //		}
 	}
 	//overload inSertIntoLexMap
+	//term, termID, fileName, totalFreq, offset, docFreq, metadataSize, length
+	public void inSertIntoLexMap(String term, int termID, int filename, int totalFreq, int offset, int docDreq, int metadataSize, int length){
+		int[] lexInfo=new int[7];
+		lexInfo[0]=termID;  //document frequency;
+		lexInfo[1]=filename; // index file number;
+		lexInfo[2]=totalFreq; //start point of the inverted list in the index file;
+		lexInfo[3]=offset;// the length of the inverted list by bytes;
+		lexInfo[4]=docDreq; //how many chunks for this inverted list;(The actual chunk number should be doubled because DocId chunks and frequency chunks are separated)
+		lexInfo[5]=metadataSize;
+		lexInfo[6]=length;
+		
+		lexiconMap.put(term,lexInfo);
+	}
+	
+	
+	
+	//overload inSertIntoLexMap
 	public void inSertIntoLexMap(String word){
 		lexiconMap.put(word,null);
 	}
-	
 	/* insert the url and document length into the urlDocMap for the give doc ID;
 	 */
 	public void inSertIntoUrlDocMap(Integer docId,String url, Integer docLen){

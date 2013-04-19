@@ -26,16 +26,16 @@ class IndexBuilder
 	static WordMap index = new WordMap();
     static int document_ID = 1;
 	static int totalFileNum=233;
-	
+
 	public static void main(String[] args) throws IOException{  
-			
+
 		//add a loop read all the files(data --- index)
 		int invertedNum=0;
 		for(int fileNum=0; fileNum< totalFileNum; fileNum++)
 		{
-			
+
 			index.postingMap = new TreeMap<String,TreeMap<Integer,Integer>> ();
-			
+
 			//should have for(int j...... j<100)
 			String zero = "0000000";
 			String tmp = Integer.toString(fileNum);
@@ -43,7 +43,7 @@ class IndexBuilder
 			String filename = "data/"+tmp+".xml";
 			parse(filename);//parse a page and insert into postings
 			//end for
-			
+
 			//print inverted list into disk(100 # of xml)
 			invertedIndexWriter(invertedNum);
 			invertedNum++;
@@ -82,7 +82,7 @@ class IndexBuilder
 	public static void invertedIndexWriter(int fileNum){
 		System.out.println("start write inverted index into file");
 		//start print Inverted index to file
-		
+
 		Iterator  ilter1= index.postingMap.entrySet().iterator();
 		BufferedWriter fout;
 		try {
@@ -92,7 +92,7 @@ class IndexBuilder
 				 Map.Entry entry1 = (Map.Entry) ilter1.next();
 				 String word = (String) entry1.getKey();
 				 TreeMap posting = (TreeMap) entry1.getValue();
-				 
+
 				 Iterator  ilter2= posting.entrySet().iterator();
 				 String post_string = word+" ";
 				 while (ilter2.hasNext())  // concatenate all docID and freq for this word;
@@ -149,14 +149,17 @@ class IndexBuilder
 		OutputStream fout = new BufferedOutputStream(new FileOutputStream("0"),128*1024);
 		BufferedReader stdoutReader = new BufferedReader(new InputStreamReader(cmdProc.getInputStream()));
 		String line, previousWord;
-		
+
 		int offset=0,startOffset=0,filename=0,chunkNum=0,wordTotalNum=0,docFreq;
-		int[] chunk ;
+//		List<Byte> chunk = new ArrayList<Byte>(256);
+		int [] chunk;
 		String word[]={"1"};//initialize the first word;
-		byte[] metadata, compressedChunk = null;
+		List<Byte> compressedChunk ;
 		List<Integer> docIDsInList=new ArrayList<Integer>();
-		List<Byte> freqsInList=new ArrayList<Byte>();
-		List<byte[]> compressedList = new ArrayList<byte[]>(4);
+		List<Integer> freqsInList=new ArrayList<Integer>();
+		List<Byte> compressedList = new ArrayList<Byte>();
+		int termID = 0;
+		int totalFreq = 0;
 //		docIDsInList.add(0);freqsInList.add((byte)0);//initialize the lists for the first check in the loop;
 		//read lines after merge
 		while ((line = stdoutReader.readLine()) != null) {
@@ -170,59 +173,78 @@ class IndexBuilder
 				docFreq=docIDsInList.size(); // the docID number of the given word;
 				chunkNum=(docFreq%128==0)?docFreq/128:docFreq/128+1;
 				startOffset=offset;
-				metadata = new byte[chunkNum];//should edit
-				offset += chunkNum;//should edit
+//				metadata = new byte[chunkNum];//should edit
+//				offset += chunkNum;//should edit
+				List<Byte> metadata = new ArrayList<Byte>();
+				//compress every chunk(docID , freq)
 				for(int i=0; i<chunkNum; i++)
 				{
 					if((i+1)*128 > docFreq)
 					{
 						chunk=new int[docFreq-i*128];
-
+						compressedChunk = new ArrayList<Byte>(256);
+						List<Byte> FirstDocID = VB.VB_Compress(chunk[0]);
+						compressedChunk.addAll(FirstDocID);
+						//add the first docID of chunk into the metadata
+						metadata.addAll(FirstDocID);
 						chunk[0]=docIDsInList.get(i*128);
 						for (int j=i*128+1;j<docFreq;j++){
-							chunk[j-i*128]=docIDsInList.get(j)-docIDsInList.get(j-1);
+							//compress docID and add into compressedChunk
+							compressedChunk.addAll(VB.VB_Compress(docIDsInList.get(j)-docIDsInList.get(j-1)));
+							//compress freq and add into compressedChunk
+							compressedChunk.addAll(VB.VB_Compress(freqsInList.get(j)));
 						}
-						compressedChunk = VB.VBENCODE(chunk);
-						//should store the compressedChunk
-						compressedList.add(compressedChunk);
-						offset+=compressedChunk.length;
-						metadata[i]=(byte)compressedChunk.length;  //metadata store the length(bytes) of the chunk
-						                                           //(bug) if length = 256, metadata become 0
-//						lengthByBytes+=metadata[i];
+						//compress the length of the chunk and add into metadata
+						//metadata store the first docID and length(bytes) of the chunk
+						metadata.addAll(VB.VB_Compress(compressedChunk.size()));  
+						//add compressed chunk into compressedList(contain all the compressed data except metadata)
+						compressedList.addAll(compressedChunk);
 					}
 					else
 					{
 						chunk=new int[128];
+						compressedChunk = new ArrayList<Byte>();
+						List<Byte> FirstDocID = VB.VB_Compress(chunk[0]);
+						compressedChunk.addAll(FirstDocID);
+						//add the first docID of chunk into the metadata
+						metadata.addAll(FirstDocID);
 						chunk[0]=docIDsInList.get(i*128);
 						for (int j=i*128+1;j<(i+1)*128;j++){
-							chunk[j-i*128]=docIDsInList.get(j)-docIDsInList.get(j-1);
+							//compress docID and add into compressedChunk
+							compressedChunk.addAll(VB.VB_Compress(docIDsInList.get(j)-docIDsInList.get(j-1)));
+							//compress freq and add into compressedChunk
+							compressedChunk.addAll(VB.VB_Compress(freqsInList.get(j)));
 						}
-						compressedChunk = VB.VBENCODE(chunk);
-						//should store the compressedChunk
-						compressedList.add(compressedChunk);
-						offset+=compressedChunk.length;
-						metadata[i]=(byte)compressedChunk.length;  //metadata store the length(bytes) of the chunk
-//						lengthByBytes+=metadata[i];
+						//compress the length of the chunk and add into metadata
+						//metadata store the first docID and length(bytes) of the chunk
+						metadata.addAll(VB.VB_Compress(compressedChunk.size()));  
+						//add compressed chunk into compressedList(contain all the compressed data except metadata)
+						compressedList.addAll(compressedChunk);
 					}
 				}
-				offset+=freqsInList.size();// add the size of freq chunks;
+				offset+=metadata.size() + compressedList.size();//set the offset
 				/***
 				 * write chunks into file
 				 */
-				fout.write(metadata);// 1. write meta data;
+//				byte[] tmp = (byte[])metadata.toArray(new byte[metadata.size()]);
+				//1.write compressed metadata 
+				for(int i=0; i<metadata.size(); i++)
+				{
+					fout.write(metadata.get(i));
+				}
+				
+				// 2.write compressed docId chunks
 				for(int i=0; i<compressedList.size(); i++){
-					fout.write(compressedList.get(i));// 2.write compressed docId chunks
+					fout.write(compressedList.get(i));
 				}
-				byte[] termfreqs = new byte[freqsInList.size()];
-				for(int i=0; i<freqsInList.size(); i++){ 
-					termfreqs[i] = freqsInList.get(i).byteValue();
-				}
-				fout.write(termfreqs); //3.write doc frequency right after docId chunks
+				
 				/*insert the lexinfo to lexicon map*/
-				index.inSertIntoLexMap(previousWord,docFreq,filename,startOffset,offset-startOffset,chunkNum);
+				//term, termID, fileName, totalFreq, offset, docFreq, metadataSize, length
+				termID ++;
+				index.inSertIntoLexMap(previousWord,termID, filename, totalFreq, startOffset, docFreq, metadata.size(), offset-startOffset);
 				/*check out inverted index file*/
 				wordTotalNum++;
-				if ((wordTotalNum&0xFFFF)==0xFFFF){// store 4096*16 words(inverted lists) in one index file;
+				if ((wordTotalNum&0xFFFF)==0xFFFFFF){// store 4096*16 words(inverted lists) in one index file;
 					System.out.println("next file");
 					offset=0;
 					fout.flush();//force to write out the buffer;
@@ -232,22 +254,23 @@ class IndexBuilder
 				}
 				//make new docIDsInList and freqsInList
 				docIDsInList=new ArrayList<Integer>();
-				freqsInList=new ArrayList<Byte>();
-				compressedList = new ArrayList<byte[]>(4);
+				freqsInList=new ArrayList<Integer>();
+				compressedList = new ArrayList<Byte>();
 				for (int i=0;i<((word.length-1)>>>1);i++){
 					docIDsInList.add(Integer.parseInt(word[i*2+1]));
-					freqsInList.add((byte)Integer.parseInt(word[i*2+2]));
+					freqsInList.add((int)Integer.parseInt(word[i*2+2]));
 				}
 			}else{// when the posting belonging to the same word, add them into doc id list and freq list;
 				for (int i=0;i<((word.length-1)>>>1);i++){
 					docIDsInList.add(Integer.parseInt(word[i*2+1]));
-					freqsInList.add((byte)Integer.parseInt(word[i*2+2]));
+					freqsInList.add((int)Integer.parseInt(word[i*2+2]));
+					totalFreq += (int)Integer.parseInt(word[i*2+2]);
 				}
 			}
 		}
 		//TODO write the last word!!
         fout.close();
-		
+
 		//print error of linux sort
 		BufferedReader stderrReader = new BufferedReader(
 		         new InputStreamReader(cmdProc.getErrorStream()));
@@ -289,9 +312,9 @@ class IndexBuilder
         System.out.println("done");
         //end loop
 	}
-	
-	
-	
+
+
+
 	public static void urlIndexWriter(String filename){
 	//start print url index to file
 		System.out.println("start write url index into file");
@@ -317,6 +340,6 @@ class IndexBuilder
 		{
 			e.printStackTrace();
 		}//end print url_index to disk
-		
+
     }  
 }

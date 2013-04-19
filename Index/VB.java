@@ -12,6 +12,7 @@ public class VB {
     7 bytes[LENGTH(bytes)] += 128
     8 return bytes
 */    
+	
     
     public static List<Byte> VB_Compress(int n) {
         List<Byte> bytes = new ArrayList<Byte>();
@@ -19,7 +20,7 @@ public class VB {
         n = n / 128;
         while (n>0) 
         {
-        	byte tmp = (byte)(n%128);
+        	Byte tmp = (byte)(n%128);
             bytes.add(0,(byte)(tmp | 0x80));//This is done like that because ,Java doesn't have unsigned byte.
             n = n / 128;
         }                                                 
