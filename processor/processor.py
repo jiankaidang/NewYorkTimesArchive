@@ -35,7 +35,7 @@ class doc_node:
         print self.url, str(self.id), str(self.total), str(self.pr)
 
 # hard code here
-lexicon_file_line_number = 3091675
+lexicon_file_line_number = 0
 
 
 def build_lexicon(path):
@@ -43,22 +43,20 @@ def build_lexicon(path):
     global lexicon_list
     global word_list
     global d_avg
-    is_init = False
-    for i in range(0, lexicon_file_line_number):
-        lexicon_list.append(lexicon_node())
     for line in open(path):
         w = line.split()
         if len(w) == 8:
+            lexicon_obj = lexicon_node()
             id = int(w[1])
             word_list[w[0]] = id
-            lexicon_list[id].start = w[4]
-            lexicon_list[id].total = w[3]
-            lexicon_list[id].did = w[2]
-            lexicon_list[id].meta_length = w[6]
-            lexicon_list[id].length = w[7]
+            lexicon_obj.start = w[4]
+            lexicon_obj.total = w[3]
+            lexicon_obj.did = w[2]
+            lexicon_obj.meta_length = w[6]
+            lexicon_obj.length = w[7]
+            lexicon_list.append(lexicon_obj)
             d_avg += float(w[5])
-        else:
-            continue
+            lexicon_file_line_number = lexicon_file_line_number + 1
     d_avg /= float(lexicon_file_line_number)
     return
 
@@ -73,20 +71,18 @@ def build_doc_meta_data(path):
         if len(w) == 1 and is_init == False:
             for i in range(0, int(w[0])):
                 doc_meta.append(doc_node())
-        elif len(w) == 4:
+        else:
             id = int(w[0])
             doc_list[w[1]] = id
             doc_meta[id].url = w[1]
             doc_meta[id].total = w[2]
-        #            doc_meta[id].pr = w[3]
-        #            print id
-        #            print doc_meta[id].url
-        #            sleep(1)
-        #            print w[1]
-        #            doc_meta[id].pr = float(getPageRank(w[1]))
-        #            doc_meta[id].ar = float(getAlexaRank(w[1]))
-        else:
-            continue
+            #            doc_meta[id].pr = w[3]
+            #            print id
+            #            print doc_meta[id].url
+            #            sleep(1)
+            #            print w[1]
+            #            doc_meta[id].pr = float(getPageRank(w[1]))
+            #            doc_meta[id].ar = float(getAlexaRank(w[1]))
     return
 
 ################## Initialize Lexicon and Doc meta data part######################
@@ -108,7 +104,7 @@ def openList(termId, getCache=False):
             return data
     lexicon_node_obj = lexicon_list[termId]
     # Open to read the inverted list file.
-    list_file = open(pwd + "inverted_index_new/" + str(lexicon_node_obj.did), "rb")
+    list_file = open(pwd + str(lexicon_node_obj.did), "rb")
     # Seek to the start offset of the inverted list information for this term.
     list_file.seek(int(lexicon_node_obj.start))
     list_data_str = list_file.read(int(lexicon_node_obj.length))
@@ -448,11 +444,11 @@ doc_meta = []
 lexicon_list = []
 word_list = {}
 
-pwd = "/Users/jiankaidang/Documents/WebSearchEngines/testing/query-processor/IndexCompression/LargeDateset/"
+pwd = "/Users/jiankaidang/Documents/WebSearchEngines/NYTAData/"
 print "Building Doc Meta Data...\n"
-build_doc_meta_data(pwd + "DocMetaData_large_set.txt")
+build_doc_meta_data(pwd + "result/url_index.txt")
 print "Building Lexicon Meta Data..."
-build_lexicon(pwd + "Lexicon_new")
+build_lexicon(pwd + "result/lexicon_index.txt")
 result_set = []
 max_doc_id = len(doc_list)
 cached_data = {}
