@@ -3,8 +3,11 @@ from heapq import heappush, heappop
 from math import log
 import random
 from time import time
+
+from nltk.tokenize import wordpunct_tokenize
+
 from encode import decode7bit
-from parser import parse
+
 
 ################## Initialize Lexicon and Doc meta data part######################
 class lexicon_node:
@@ -34,6 +37,26 @@ class doc_node:
     def display(self):
         print self.url, str(self.id), str(self.total), str(self.pr)
 
+
+def parse(query):
+    # this function parse input query into a split word
+    # e.g. "it's" into "it ' s"
+    # also delete uesless terms
+    try:
+        query = wordpunct_tokenize(query)
+    except Exception:
+        query = query.split()
+    print query
+    res = []
+    for term in query:
+        flag = True
+        for digit in term:
+            if not (digit.isalpha() or digit.isdigit()):
+                flag = False
+        if flag:
+            res.append(term.lower())
+    return res
+
 # hard code here
 lexicon_file_line_number = 0
 
@@ -43,12 +66,13 @@ def build_lexicon(path):
     global lexicon_list
     global word_list
     global d_avg
+    global lexicon_file_line_number
     for line in open(path):
         w = line.split()
         if len(w) == 8:
             lexicon_obj = lexicon_node()
             id = int(w[1])
-            word_list[w[0]] = id
+            word_list[w[0].lower()] = id
             lexicon_obj.start = w[4]
             lexicon_obj.total = w[3]
             lexicon_obj.did = w[2]
@@ -386,7 +410,7 @@ def make_decision_and_do_cache(cache_num=500000, path="frequency.txt"):
     #        print cached_num
         line = line.split()
         if len(line) == 3:
-            word = line[0]
+            word = line[0].lower()
             freq = int(line[1])
             if do_cache(word):
                 cached_num += 1
