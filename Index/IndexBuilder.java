@@ -24,40 +24,53 @@ import java.util.zip.GZIPInputStream;
 class IndexBuilder
 {
 	static WordMap index = new WordMap();
-    static int document_ID = 1;
-	static int totalFileNum=233;
-
+    static int document_ID = 0;
+    static int invertedNum=0;
+//	static int totalFileNum=1801111;
+    static int totalFileNum=31111;
 	public static void main(String[] args) throws IOException{  
 
 		//add a loop read all the files(data --- index)
-		int invertedNum=0;
-		for(int fileNum=0; fileNum< totalFileNum; fileNum++)
+		for(int fileNum=0; fileNum< totalFileNum; )
 		{
-
 			index.postingMap = new TreeMap<String,TreeMap<Integer,Integer>> ();
+			// take every 300 xml files as a file
+			for(int i=0; i<300; i++){
+				if(fileNum >= totalFileNum)
+					break;
+				String zero = "0000000";
+				String tmp = Integer.toString(fileNum);
+				tmp = zero.substring(0, 7-tmp.length())+tmp;
+				String filename = "/mnt/hgfs/ubuntu_share-2/workspace/ExtraFile/data/all/"+tmp+".xml";
+				System.out.println(filename);
+				parse(filename);//parse a page and insert into postings
+				fileNum++;
+			}
 
-			//should have for(int j...... j<100)
-			String zero = "0000000";
-			String tmp = Integer.toString(fileNum);
-			tmp = zero.substring(0, 7-tmp.length())+tmp;
-			String filename = "data/"+tmp+".xml";
-			parse(filename);//parse a page and insert into postings
-			//end for
-
-			//print inverted list into disk(100 # of xml)
+			//print inverted list into disk(300 # of xml)
 			invertedIndexWriter(invertedNum);
 			invertedNum++;
 		}
 		linuxSort();
-		urlIndexWriter1("result/lexicon_index.txt");
-		urlIndexWriter1("result/url_index.txt");
+		lexiconIndexWriter("result/lexicon_index.txt");
+		urlIndexWriter("result/url_index.txt");
+		System.out.println("done");
 	}
 
 
     public static void parse(String fileName){
         NYTCorpusDocument doc = new NYTCorpusDocument();
         NYTCorpusDocumentParser docParser = new NYTCorpusDocumentParser();
-        doc = docParser.parseNYTCorpusDocumentFromFile(new File(fileName),false);
+        try{
+        	doc = docParser.parseNYTCorpusDocumentFromFile(new File(fileName),false);
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+        	return;
+        }
+        if(doc == null || doc.body.length() == 0)
+        	return;
 		String[] content=doc.body.split("\n");
 		for (String line:content){
 			//System.out.println(word);
@@ -118,14 +131,14 @@ class IndexBuilder
 		//merge inverted index
     	//linux sort all the files
     	//generate linux sort command
-    	int sortCount = ((totalFileNum-1)%100==0)?((totalFileNum-1)/100):((totalFileNum-1)/100+1);
-    	System.out.println(sortCount);
+    	int sortCount = ((invertedNum-1)%100==0)?((invertedNum-1)/100):((invertedNum-1)/100+1);
+    	System.out.println("invertedNum="+invertedNum+"    "+"       sortCount="+sortCount);
     	for(int i=0; i<sortCount; i++)
     	{
     		String command = new String("sort -k1,1d -k2,2n");
     		for(int j=0; j<100; j++)
     		{
-    			if((totalFileNum-1)<i*100+j)
+    			if((invertedNum-1)<i*100+j)
     				break;
     			command += " result/inverted_index_"+(i*100+j)+".txt";
     		}
@@ -152,8 +165,8 @@ class IndexBuilder
 
 		int offset=0,startOffset=0,filename=0,chunkNum=0,wordTotalNum=0,docFreq;
 //		List<Byte> chunk = new ArrayList<Byte>(256);
-		int [] chunk;
-		String word[]={"1"};//initialize the first word;
+//		int [] chunk;
+		String word[]={"0"};//initialize the first word;
 		List<Byte> compressedChunk ;
 		List<Integer> docIDsInList=new ArrayList<Integer>();
 		List<Integer> freqsInList=new ArrayList<Integer>();
@@ -164,30 +177,29 @@ class IndexBuilder
 		//read lines after merge
 		while ((line = stdoutReader.readLine()) != null) {
 			previousWord=word[0];
-			System.out.println(line);
+			//System.out.println(line);
 			word=line.split(" "); //word[0]=word,word[1]=docId,word[2]=freq,word[3]=docId, word[4]=freq,....
-//			temp_lexinfo=index.lexiconMap.get(word[0]);    		
 			if(!previousWord.equals(word[0])){// if we read a new word, we make up the inverted list of the last word;
-//				index.inSertIntoLexMap(word[0]); //insert the current word into lexiconMap immediately;
 				//make chunks for the previous word;
 				docFreq=docIDsInList.size(); // the docID number of the given word;
 				chunkNum=(docFreq%128==0)?docFreq/128:docFreq/128+1;
 				startOffset=offset;
-//				metadata = new byte[chunkNum];//should edit
-//				offset += chunkNum;//should edit
 				List<Byte> metadata = new ArrayList<Byte>();
+				int lastDocID = 0;
+				int preDocID = 0;//docID in metadata
 				//compress every chunk(docID , freq)
 				for(int i=0; i<chunkNum; i++)
 				{
 					if((i+1)*128 > docFreq)
 					{
-						chunk=new int[docFreq-i*128];
-						compressedChunk = new ArrayList<Byte>(256);
-						List<Byte> FirstDocID = VB.VB_Compress(chunk[0]);
-						compressedChunk.addAll(FirstDocID);
-						//add the first docID of chunk into the metadata
-						metadata.addAll(FirstDocID);
-						chunk[0]=docIDsInList.get(i*128);
+						compressedChunk = new ArrayList<Byte>();
+						//compress the first docID,Freq and add into compressedChunk
+						int firsstDocID = docIDsInList.get(i*128);
+						if(lastDocID != 0)
+							firsstDocID = firsstDocID - lastDocID;
+						compressedChunk.addAll(VB.VB_Compress(firsstDocID));
+						compressedChunk.addAll(VB.VB_Compress(freqsInList.get(i*128)));
+						
 						for (int j=i*128+1;j<docFreq;j++){
 							//compress docID and add into compressedChunk
 							compressedChunk.addAll(VB.VB_Compress(docIDsInList.get(j)-docIDsInList.get(j-1)));
@@ -195,28 +207,35 @@ class IndexBuilder
 							compressedChunk.addAll(VB.VB_Compress(freqsInList.get(j)));
 						}
 						//compress the length of the chunk and add into metadata
-						//metadata store the first docID and length(bytes) of the chunk
+						lastDocID = docIDsInList.get(docFreq - 1);
+						//metadata store the last docID and length(bytes) of the chunk
+						metadata.addAll(VB.VB_Compress(lastDocID - preDocID));
+						preDocID = lastDocID;
 						metadata.addAll(VB.VB_Compress(compressedChunk.size()));  
 						//add compressed chunk into compressedList(contain all the compressed data except metadata)
 						compressedList.addAll(compressedChunk);
 					}
 					else
 					{
-						chunk=new int[128];
 						compressedChunk = new ArrayList<Byte>();
-						List<Byte> FirstDocID = VB.VB_Compress(chunk[0]);
-						compressedChunk.addAll(FirstDocID);
-						//add the first docID of chunk into the metadata
-						metadata.addAll(FirstDocID);
-						chunk[0]=docIDsInList.get(i*128);
+						//compress the first docID,Freq and add into compressedChunk
+						int firsstDocID = docIDsInList.get(i*128);
+						if(lastDocID != 0)
+							firsstDocID = firsstDocID - lastDocID;
+						compressedChunk.addAll(VB.VB_Compress(firsstDocID));
+						compressedChunk.addAll(VB.VB_Compress(freqsInList.get(i*128)));
+						
 						for (int j=i*128+1;j<(i+1)*128;j++){
 							//compress docID and add into compressedChunk
 							compressedChunk.addAll(VB.VB_Compress(docIDsInList.get(j)-docIDsInList.get(j-1)));
 							//compress freq and add into compressedChunk
 							compressedChunk.addAll(VB.VB_Compress(freqsInList.get(j)));
 						}
+						lastDocID = docIDsInList.get((i+1)*128-1);
 						//compress the length of the chunk and add into metadata
 						//metadata store the first docID and length(bytes) of the chunk
+						metadata.addAll(VB.VB_Compress(lastDocID - preDocID));
+						preDocID = lastDocID;
 						metadata.addAll(VB.VB_Compress(compressedChunk.size()));  
 						//add compressed chunk into compressedList(contain all the compressed data except metadata)
 						compressedList.addAll(compressedChunk);
@@ -232,7 +251,7 @@ class IndexBuilder
 				{
 					fout.write(metadata.get(i));
 				}
-				
+			
 				// 2.write compressed docId chunks
 				for(int i=0; i<compressedList.size(); i++){
 					fout.write(compressedList.get(i));
@@ -240,11 +259,13 @@ class IndexBuilder
 				
 				/*insert the lexinfo to lexicon map*/
 				//term, termID, fileName, totalFreq, offset, docFreq, metadataSize, length
-				termID ++;
+				
 				index.inSertIntoLexMap(previousWord,termID, filename, totalFreq, startOffset, docFreq, metadata.size(), offset-startOffset);
+				termID ++;
+				totalFreq = 0;
 				/*check out inverted index file*/
 				wordTotalNum++;
-				if ((wordTotalNum&0xFFFF)==0xFFFFFF){// store 4096*16 words(inverted lists) in one index file;
+				if ((wordTotalNum&0xFFFFF)==0xFFFFF){// store 4096*16 words(inverted lists) in one index file;
 					System.out.println("next file");
 					offset=0;
 					fout.flush();//force to write out the buffer;
@@ -259,6 +280,7 @@ class IndexBuilder
 				for (int i=0;i<((word.length-1)>>>1);i++){
 					docIDsInList.add(Integer.parseInt(word[i*2+1]));
 					freqsInList.add((int)Integer.parseInt(word[i*2+2]));
+					totalFreq += (int)Integer.parseInt(word[i*2+2]);
 				}
 			}else{// when the posting belonging to the same word, add them into doc id list and freq list;
 				for (int i=0;i<((word.length-1)>>>1);i++){
@@ -279,11 +301,11 @@ class IndexBuilder
 		}
 
 		int retValue = cmdProc.exitValue();
-		System.out.println(retValue);
+		//System.out.println(retValue);
 	}
 
     
-	public static void urlIndexWriter1(String filename){
+	public static void lexiconIndexWriter(String filename){
 		//start print lexicon index to file
 		System.out.println("start write lexicon index into file");
 		Iterator ilter1= index.lexiconMap.entrySet().iterator();
@@ -298,8 +320,8 @@ class IndexBuilder
 				Map.Entry entry1 = (Map.Entry) ilter1.next();
 				theWord = (String) entry1.getKey();
 	            int[] lexinfo = (int[]) entry1.getValue();//term frequence and offset of inverted file
-//	            lexicon_string += word+" "+tf_offset.elementAt(0)+" "+tf_offset.elementAt(1);
-	            lexicon_string = theWord+" "+lexinfo[0]+" "+lexinfo[1]+" "+lexinfo[2]+" "+lexinfo[3]+" "+lexinfo[4];
+	          //term, termID, fileName, totalFreq, offset, docFreq, metadataSize, length
+	            lexicon_string = theWord+" "+lexinfo[0]+" "+lexinfo[1]+" "+lexinfo[2]+" "+lexinfo[3]+" "+lexinfo[4]+" "+lexinfo[5]+" "+lexinfo[6];
 	            fout2.write(lexicon_string+"\n");
 	        }
 			fout2.flush();
@@ -309,7 +331,7 @@ class IndexBuilder
 		{
 			e.printStackTrace();
 		}//end print url_index to disk
-        System.out.println("done");
+//        System.out.println("done");
         //end loop
 	}
 
@@ -322,7 +344,7 @@ class IndexBuilder
 		try {
 			//BufferedWriter fout2 = new BufferedWriter(new FileWriter("result/url_index.txt"));
 			BufferedWriter fout2 = new BufferedWriter(new FileWriter(filename));
-			fout2.write((--document_ID)+"\n");
+			fout2.write((document_ID)+"\n");
 			while (ilter1.hasNext())
 	        {
 				String url_string = new String();//store every line of url_index

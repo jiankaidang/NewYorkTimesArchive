@@ -29,12 +29,12 @@ def decode7bit(bytes):
     while len(bytes) != 0:
         byteval = ord(bytes.pop(0))
         if (byteval & 128) == 0:
-            data.append(value | (byteval << shift))
+            data.append((value << shift) | byteval)
             shift = 0
             value = 0
             continue
-        value |= ((byteval & 0x7F) << shift)
-        shift += 7
+        value = (value << shift) | (byteval & 0x7F)
+        shift = 7
     return data
 
 
@@ -52,12 +52,12 @@ def main(argv):
 ##    print base62encode(1)
 ##    print base62decode('q2a')
 ##    print base62encode(200048)
-    x = encode7bit(1000)
+    x = encode7bit(27341)
     y = encode7bit(100)
-    print x
-    print y
-    print decode7bit(x + y)
+
 
 
 if __name__ == "__main__":
     main(sys.argv)
+    f = open("D:\\ubuntu_share\\workspace\\NewYorkTime\\test.txt")
+    print decode7bit(f.read())
