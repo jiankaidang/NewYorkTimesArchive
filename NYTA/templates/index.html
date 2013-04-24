@@ -1,15 +1,14 @@
+{% extends "base.html" %}
 {% load staticfiles %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title></title>
-    {#    <link rel="stylesheet" type="text/css" href="{% static 'css/test.css' %}"/>#}
-</head>
-<body>
-<ul>
-    <li>
-        <a>test</a>
-    </li>
-</ul>
-</body>
-</html>
+{% block title %}Browse News Using Maps{% endblock title %}
+{% block css %}
+    <link href="{% static "css/maps.css" %}" rel="stylesheet">
+{% endblock css %}
+{% block content %}
+    <div id="map-canvas"></div>
+{% endblock content %}
+{% block js %}
+    <script type="text/javascript"
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZCS0VJe3IjzkwhTeR2HJlCJFMEVedtTY&sensor=true&v=3"></script>
+    <script type="text/javascript" src="{% static "js/maps.js" %}"></script>
+{% endblock js %}
