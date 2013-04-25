@@ -100,7 +100,6 @@ def build_doc_meta_data(path):
             doc_list[w[1]] = id
             doc_meta[id].url = w[1]
             doc_meta[id].total = w[2]
-            doc_meta[id].pr = w[3]
     return
 
 ################## Initialize Lexicon and Doc meta data part######################
