@@ -37,6 +37,9 @@ class doc_node:
     def display(self):
         print self.url, str(self.id), str(self.total), str(self.pr)
 
+# hard code here
+lexicon_file_line_number = 0
+
 
 def parse(query):
     # this function parse input query into a split word
@@ -54,11 +57,8 @@ def parse(query):
             if not (digit.isalpha() or digit.isdigit()):
                 flag = False
         if flag:
-            res.append(term.lower())
+            res.append(term)
     return res
-
-# hard code here
-lexicon_file_line_number = 0
 
 
 def build_lexicon(path):
@@ -72,13 +72,13 @@ def build_lexicon(path):
         if len(w) == 8:
             lexicon_obj = lexicon_node()
             id = int(w[1])
-            word_list[w[0].lower()] = id
+            word_list[w[0]] = id
             lexicon_obj.start = w[4]
             lexicon_obj.total = w[3]
             lexicon_obj.did = w[2]
             lexicon_obj.meta_length = w[6]
             lexicon_obj.length = w[7]
-            lexicon_list.append(lexicon_obj)
+            lexicon_list[id] = lexicon_obj
             d_avg += float(w[5])
             lexicon_file_line_number = lexicon_file_line_number + 1
     d_avg /= float(lexicon_file_line_number)
@@ -100,6 +100,13 @@ def build_doc_meta_data(path):
             doc_list[w[1]] = id
             doc_meta[id].url = w[1]
             doc_meta[id].total = w[2]
+            #            doc_meta[id].pr = w[3]
+            #            print id
+            #            print doc_meta[id].url
+            #            sleep(1)
+            #            print w[1]
+            #            doc_meta[id].pr = float(getPageRank(w[1]))
+            #            doc_meta[id].ar = float(getAlexaRank(w[1]))
     return
 
 ################## Initialize Lexicon and Doc meta data part######################
@@ -396,14 +403,14 @@ def display_simple_result(result_set):
 
 def make_decision_and_do_cache(cache_num=500000, path="frequency.txt"):
 #    This function selects terms to do cache
-#    This function read a bag of words with frequency in common English. In decending order of this frequency, do cache.
+#    This function read a bag of words with frequency in common English. In decending order of this frequency, do secache.
     cached_num = 0
     for line in open(path):
     #        print "cached num:"
     #        print cached_num
         line = line.split()
         if len(line) == 3:
-            word = line[0].lower()
+            word = line[0]
             freq = int(line[1])
             if do_cache(word):
                 cached_num += 1
@@ -411,6 +418,9 @@ def make_decision_and_do_cache(cache_num=500000, path="frequency.txt"):
                 break
         else:
             pass
+    if cached_num < cache_num:
+        for i in range(cache_num, cache_num):
+            do_cache("")
 
 
 def do_cache(word):
@@ -455,10 +465,10 @@ d_avg = 0.0
 #main function
 doc_list = {}
 doc_meta = []
-lexicon_list = []
+lexicon_list = {}
 word_list = {}
 
-pwd = "/Users/jiankaidang/Documents/WebSearchEngines/NYTAData/"
+pwd = "C:\\ubuntu_share\\workspace\\NewYorkTime\\backup\\"
 print "Building Doc Meta Data...\n"
 build_doc_meta_data(pwd + "url_index.txt")
 print "Building Lexicon Meta Data..."
