@@ -468,7 +468,7 @@ doc_meta = []
 lexicon_list = {}
 word_list = {}
 
-pwd = "C:\\ubuntu_share\\workspace\\NewYorkTime\\backup\\"
+pwd = "/Users/jiankaidang/Documents/WebSearchEngines/NYTAData/"
 print "Building Doc Meta Data...\n"
 build_doc_meta_data(pwd + "url_index.txt")
 print "Building Lexicon Meta Data..."
@@ -477,7 +477,7 @@ result_set = []
 max_doc_id = len(doc_list)
 cached_data = {}
 print "Caching...\n"
-make_decision_and_do_cache()
+# make_decision_and_do_cache()
 print "Cache done\n"
 
 while (True):
