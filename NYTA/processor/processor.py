@@ -411,9 +411,6 @@ def make_decision_and_do_cache(cache_num=500000, path="frequency.txt"):
                 break
         else:
             pass
-    if cached_num < cache_num:
-        for i in range(cached_num, cache_num):
-            do_cache("")
 
 
 def do_cache(word):
