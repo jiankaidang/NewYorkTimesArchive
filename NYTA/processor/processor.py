@@ -2,7 +2,6 @@ __author__ = 'Jiankai Dang'
 from heapq import heappush, heappop
 from math import log
 import random
-from time import time
 
 from nltk.tokenize import wordpunct_tokenize
 
@@ -467,33 +466,19 @@ doc_list = {}
 doc_meta = []
 lexicon_list = {}
 word_list = {}
-
-pwd = "/Users/jiankaidang/Documents/WebSearchEngines/NYTAData/"
-print "Building Doc Meta Data...\n"
-build_doc_meta_data(pwd + "url_index.txt")
-print "Building Lexicon Meta Data..."
-build_lexicon(pwd + "lexicon_index.txt")
-result_set = []
-max_doc_id = len(doc_list)
 cached_data = {}
-print "Caching...\n"
-# make_decision_and_do_cache()
-print "Cache done\n"
+max_doc_id = 0
+pwd = "/Users/jiankaidang/Documents/WebSearchEngines/NYTAData/"
 
-while (True):
-    input = raw_input("> input query: search or quit\n")
-    if (input == "quit"):
-        break
-    if input == "search":
-        query = raw_input("your query: ")
-        _time = time()
-        result_set = search_query(query)
-        _time = time() - _time
-        print "time: ", str(_time)
-    #        try:
-    #            result_set = search_query(query)
-    #        except Exception:
-    #            print Exception
-    else:
-        print "error: invalid command"
-        ################## Main Function######################
+
+def run():
+    print "Building Doc Meta Data...\n"
+    build_doc_meta_data(pwd + "url_index.txt")
+    print "Building Lexicon Meta Data..."
+    build_lexicon(pwd + "lexicon_index.txt")
+    global max_doc_id
+    max_doc_id = len(doc_list)
+    print "Caching...\n"
+    # make_decision_and_do_cache()
+    print "Cache done\n"
+    ################## Main Function######################
