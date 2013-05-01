@@ -4,6 +4,7 @@ from django.conf.urls import patterns, url
 # from django.contrib import admin
 # admin.autodiscover()
 from django.views.generic import TemplateView
+from NYTArchive import views
 
 urlpatterns = patterns('',
                        # Examples:
@@ -16,5 +17,6 @@ urlpatterns = patterns('',
                        # Uncomment the next line to enable the admin:
                        # url(r'^admin/', include(admin.site.urls)),
 
-                       url(r'^$', TemplateView.as_view(template_name="index.html"), name='index')
+                       url(r'^$', TemplateView.as_view(template_name="index.html"), name='index'),
+                       url(r'^geo/$', views.geo, name='geo')
 )

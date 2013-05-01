@@ -469,16 +469,28 @@ word_list = {}
 cached_data = {}
 max_doc_id = 0
 pwd = "/Users/jiankaidang/Documents/WebSearchEngines/NYTAData/"
+geoMap = {}
 
 
 def run():
     print "Building Doc Meta Data...\n"
-    build_doc_meta_data(pwd + "url_index.txt")
+    # build_doc_meta_data(pwd + "url_index.txt")
     print "Building Lexicon Meta Data..."
-    build_lexicon(pwd + "lexicon_index.txt")
+    # build_lexicon(pwd + "lexicon_index.txt")
     global max_doc_id
     max_doc_id = len(doc_list)
     print "Caching...\n"
     # make_decision_and_do_cache()
     print "Cache done\n"
+    print "Loading Geo...\n"
+    loadGeoIndex()
+    print "Geo Loaded\n"
     ################## Main Function######################
+
+
+def loadGeoIndex():
+    location_index = open(pwd + "location_index.txt")
+    geo = location_index.readline()
+    while geo:
+        geoMap[geo] = location_index.readline().split()
+        geo = location_index.readline()
