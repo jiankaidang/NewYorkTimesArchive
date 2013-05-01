@@ -474,9 +474,9 @@ geoMap = {}
 
 def run():
     print "Building Doc Meta Data...\n"
-    # build_doc_meta_data(pwd + "url_index.txt")
+    build_doc_meta_data(pwd + "url_index.txt")
     print "Building Lexicon Meta Data..."
-    # build_lexicon(pwd + "lexicon_index.txt")
+    build_lexicon(pwd + "lexicon_index.txt")
     global max_doc_id
     max_doc_id = len(doc_list)
     print "Caching...\n"
