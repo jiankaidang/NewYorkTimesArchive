@@ -483,7 +483,7 @@ def run():
     # make_decision_and_do_cache()
     print "Cache done\n"
     print "Loading Geo...\n"
-    loadGeoIndex()
+    # loadGeoIndex()
     print "Geo Loaded\n"
     ################## Main Function######################
 
