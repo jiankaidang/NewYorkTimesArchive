@@ -4,7 +4,7 @@
  * Time: 4:24 PM
  */
 var map;
-
+var geocoder;
 function initialize() {
     var mapOptions = {
         zoom: 6,
@@ -14,7 +14,7 @@ function initialize() {
     };
     map = new google.maps.Map(document.getElementById('map-canvas'),
         mapOptions);
-
+    geocoder = new google.maps.Geocoder();
     // Try HTML5 geolocation
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function (position) {
@@ -58,6 +58,7 @@ function handleNoGeolocation(errorFlag) {
 google.maps.event.addDomListener(window, 'load', initialize);
 function geo() {
     $.get("/geo/", function (data) {
+        console.log(data);
         $.each(data, function (index, value) {
             codeAddress(value);
         });
