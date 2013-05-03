@@ -5,10 +5,10 @@ import time
 from django.utils import simplejson
 from django.utils.encoding import smart_str
 
-pwd = "/Users/jiankaidang/Documents/WebSearchEngines/NYTAData/"
+pwd = ""
 location_index = open(pwd + "location_index.txt")
 location_geo = open(pwd + "location_geo.txt", "a")
-location_geo_new = open(pwd + "location_index_new.txt", "w")
+location_geo_new = open(pwd + "location_index.txt", "w")
 geo = location_index.readline()
 attempts = 0
 while geo:
