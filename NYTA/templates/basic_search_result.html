@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+{% if search_result %}
+    <ul>
+        {% for res in search_result %}
+            <li><a href="">{{ res.1 }}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No result.</p>
+{% endif %}
+</body>
+</html>
