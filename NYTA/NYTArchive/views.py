@@ -18,3 +18,15 @@ def query(request):
         'search_result': result,
     })
     return render(request, 'basic_search_result.html', context)
+
+def search(request):
+    context = {}
+    return render(request, 'basic_search.html', context)
+
+def query(request):
+    keyword = request.POST['search_box']
+    result = processor.search_query(keyword)
+    context = Context({
+        'search_result': result,
+    })
+    return render(request, 'basic_search_result.html', context)
