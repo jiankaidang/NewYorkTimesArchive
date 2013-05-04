@@ -468,7 +468,8 @@ lexicon_list = {}
 word_list = {}
 cached_data = {}
 max_doc_id = 0
-pwd = "/Users/jiankaidang/Documents/WebSearchEngines/NYTAData/"
+# pwd = "/Users/jiankaidang/Documents/WebSearchEngines/NYTAData/"
+pwd = "C:\\ubuntu_share\\workspace\\NewYorkTime\\test\\"
 geoMap = {}
 
 
