@@ -15,7 +15,17 @@ while geo:
     if attempts < 3:
         location = urllib.quote_plus(smart_str(geo))
         url = 'http://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false' % location
-        response = urllib2.urlopen(url).read()
+        try:
+            response = urllib2.urlopen(url).read()
+        except urllib2.HTTPError as e:
+            if e.code == 414:
+                location_index.readline()
+                attempts = 0
+                geo = location_index.readline()
+                continue
+            else:
+                print e
+                break
         result = simplejson.loads(response)
         print geo
         print result['status'] + "\n"
@@ -30,11 +40,8 @@ while geo:
             time.sleep(2)
             attempts += 1
             continue
-        elif result['status'] == 'ZERO_RESULTS':
-            location_index.readline()
         else:
-            print "error: " + result['status'] + "\n"
-            break
+            location_index.readline()
         attempts = 0
     else:
         location_geo_new.write(geo)
