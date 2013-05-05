@@ -4,7 +4,15 @@ import java.io.IOException;
 import java.util.*;
 
 public class WordMap {
-
+	/*
+	 * geo location inverted map:
+	 * 1. city name
+	 * 2. docID
+	 * 3. rank(include pagerank and alexrank)
+	 */
+	public Map<String, ArrayList<Integer>> locationMap;
+	
+	
 	/* postingMap:
 	 *  1.Map a word to all postings belonging to it; 
 	 *  2. Map TermInDoc objects to a specific doc in the postings of the specific word;
@@ -30,6 +38,7 @@ public class WordMap {
 		//postingMap=new TreeMap<String,HashMap<Integer,TermInDoc>> ();
 		urlDocMap=new HashMap<Integer, UrlDocLen> ();
 		lexiconMap = new HashMap<String,int[]>();
+		locationMap = new HashMap<String,ArrayList<Integer>>();
 		
 	}
 	
@@ -75,8 +84,8 @@ public class WordMap {
 	}
 	/* insert the url and document length into the urlDocMap for the give doc ID;
 	 */
-	public void inSertIntoUrlDocMap(Integer docId,String url, Integer docLen){
-		urlDocMap.put(docId,new UrlDocLen(url,docLen));
+	public void inSertIntoUrlDocMap(Integer docId,String url, Integer docLen, Float rank){
+		urlDocMap.put(docId,new UrlDocLen(url,docLen,rank));
 	}
 	
 	/* insert a posting into postingMap for the give word; 
@@ -138,7 +147,7 @@ public class WordMap {
 			while ((line = in.readLine()) != null) 
 			{
 				String words[] = line.split(" ");
-				urlDocMap.put(Integer.parseInt(words[0]),new UrlDocLen(words[1],Integer.parseInt(words[2])));
+				urlDocMap.put(Integer.parseInt(words[0]),new UrlDocLen(words[1],Integer.parseInt(words[2]),Float.parseFloat(words[3])));
 				length += Integer.parseInt(words[2]);
 			}
 			//calculate the average length of documents in the collection
@@ -168,9 +177,18 @@ public class WordMap {
 class UrlDocLen{  
 	String url;
 	int docLen; //document length;
-	public UrlDocLen(String url,int docLen){
+	float rank;
+	String fileName;
+	public UrlDocLen(String url,int docLen, float rank, String fileName){
 		this.url=url;
 		this.docLen=docLen;
+		this.rank = rank;
+		this.fileName = fileName;
+	}
+	public UrlDocLen(String url,int docLen, float rank){
+		this.url=url;
+		this.docLen=docLen;
+		this.rank = rank;
 	}
 }
 

@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.zip.GZIPInputStream;  
+
   
 
 class IndexBuilder
@@ -26,10 +27,12 @@ class IndexBuilder
 	static WordMap index = new WordMap();
     static int document_ID = 0;
     static int invertedNum=0;
+    static String fn;
 //	static int totalFileNum=1801111;
-    static int totalFileNum=31111;
+//    static int totalFileNum=638012;
+    static int totalFileNum=1855670;
 	public static void main(String[] args) throws IOException{  
-
+		//removeFiles();
 		//add a loop read all the files(data --- index)
 		for(int fileNum=0; fileNum< totalFileNum; )
 		{
@@ -40,11 +43,19 @@ class IndexBuilder
 					break;
 				String zero = "0000000";
 				String tmp = Integer.toString(fileNum);
+				//String tmp = "0001000";//just for test
 				tmp = zero.substring(0, 7-tmp.length())+tmp;
+				fn = tmp;
 				String filename = "/mnt/hgfs/ubuntu_share-2/workspace/ExtraFile/data/all/"+tmp+".xml";
 				System.out.println(filename);
 				parse(filename);//parse a page and insert into postings
 				fileNum++;
+//				if(fileNum != document_ID)
+//				{
+//					System.out.println("not equal");
+//					System.out.println("fileNum: "+fileNum+"  document_ID: "+document_ID);
+//					return ;
+//				}
 			}
 
 			//print inverted list into disk(300 # of xml)
@@ -52,15 +63,21 @@ class IndexBuilder
 			invertedNum++;
 		}
 		linuxSort();
-		lexiconIndexWriter("result/lexicon_index.txt");
-		urlIndexWriter("result/url_index.txt");
+		lexiconIndexWriter("lexicon_index.txt");
+		urlIndexWriter("url_index.txt");
+		locationIndexWriter("location_index.txt");
 		System.out.println("done");
 	}
-
+	public static void removeFiles() throws IOException{
+		String command = new String("rm -r /mnt/hgfs/ubuntu_share/workspace/NewYorkTime/result/inverted_index*.txt");
+    	//System.out.println(command);
+		Process cmdProc = Runtime.getRuntime().exec(command);
+	}
 
     public static void parse(String fileName){
         NYTCorpusDocument doc = new NYTCorpusDocument();
         NYTCorpusDocumentParser docParser = new NYTCorpusDocumentParser();
+        float rank=-1;
         try{
         	doc = docParser.parseNYTCorpusDocumentFromFile(new File(fileName),false);
         }
@@ -69,23 +86,58 @@ class IndexBuilder
         	e.printStackTrace();
         	return;
         }
-        if(doc == null || doc.body.length() == 0)
+        if(doc == null)
         	return;
+        else if(doc.body == null)
+        	return;
+        //extract location data
+        if(doc.onlineLocations.size() > 0)
+        {
+        	//parse the location
+        	for(int i=0; i<doc.onlineLocations.size(); i++)
+        	{
+        		String city = doc.onlineLocations.get(i).toLowerCase();
+        		if(city.equals(""))
+        			continue;
+        		ArrayList<Integer> docID = index.locationMap.get(city);
+        		if(docID == null)
+        			docID = new ArrayList<Integer>();
+        		docID.add(document_ID);
+        		index.locationMap.put(city.replace("\n", " "), docID);
+        	}
+        }
+        else 
+        {
+        	if(doc.locations.size() > 0)
+        	{
+        		//parse the location
+            	for(int i=0; i<doc.locations.size(); i++)
+            	{
+            		String city = doc.locations.get(i).toLowerCase();
+            		if(city.equals(""))
+            			continue;
+            		ArrayList<Integer> docID = index.locationMap.get(city);
+            		if(docID == null)
+            			docID = new ArrayList<Integer>();
+            		docID.add(document_ID);
+            		index.locationMap.put(city.replace("\n", " "), docID);
+            	}
+        	}
+        }
+        //parse every world in body
 		String[] content=doc.body.split("\n");
 		for (String line:content){
-			//System.out.println(word);
 			String[] words=line.split(" ");
 			for(String word:words)
 			{
 				word = word.toLowerCase();
 				if(word.matches("[a-z0-9]+"))//only store word only contain [a~z]
 				{
-//					System.out.println(word);
 					index.inSertIntoPostingMap(word, document_ID);//insert into 
 				}
 			}
 		}
-		index.urlDocMap.put(document_ID, new UrlDocLen(doc.url.toString(), doc.wordCount));//it's # of words not the length!!!!!!
+		index.urlDocMap.put(document_ID, new UrlDocLen(doc.url.toString(), doc.body.length(), rank, fn));//it's # of unicode not the length!!!!!!
 		document_ID++;
 	}//end for a document
 
@@ -351,7 +403,7 @@ class IndexBuilder
 				Map.Entry entry1 = (Map.Entry) ilter1.next();
 	            int id = (int) entry1.getKey();
 	            UrlDocLen url = (UrlDocLen) entry1.getValue();
-				url_string += id+" "+url.url+" "+url.docLen; 
+				url_string += id+" "+url.url+" "+url.docLen+" "+url.fileName; 
 //				System.out.println(url_string);
 	            fout2.write(url_string+"\n");
 	        }
@@ -364,4 +416,36 @@ class IndexBuilder
 		}//end print url_index to disk
 
     }  
+	
+	public static void locationIndexWriter(String filename){
+		System.out.println("start write location index into file");
+		//start print Inverted index to file
+
+		Iterator  ilter1= index.locationMap.entrySet().iterator();
+		BufferedWriter fout;
+		try {
+			fout = new BufferedWriter(new FileWriter(filename));
+			while (ilter1.hasNext())
+			{
+				 Map.Entry entry1 = (Map.Entry) ilter1.next();
+				 String city = (String) entry1.getKey();
+				 ArrayList docIDs = (ArrayList) entry1.getValue();
+
+				 String post_string = city+"\n";
+				 for(int i=0; i<docIDs.size(); i++)  // concatenate all docID and freq for this word;
+				 {
+					 post_string += docIDs.get(i)+" ";
+				 }
+				 fout.write(post_string+"\n");
+			 }
+			fout.flush();
+			fout.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("end write location index into file");
+   }
+
+	
 }
