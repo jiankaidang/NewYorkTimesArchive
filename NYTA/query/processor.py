@@ -7,6 +7,8 @@ from nltk.tokenize import wordpunct_tokenize
 
 from encode import decode7bit
 
+from parseXML import parse_title, parse_content
+
 
 ################## Initialize Lexicon and Doc meta data part######################
 class lexicon_node:
@@ -31,6 +33,7 @@ class doc_node:
         self.total = -1
         self.pr = -1
         self.ar = -1
+        self.file_name = ""
         # self.number = -1
 
     def display(self):
@@ -99,6 +102,7 @@ def build_doc_meta_data(path):
             doc_list[w[1]] = id
             doc_meta[id].url = w[1]
             doc_meta[id].total = w[2]
+            doc_meta[id].file_name = w[3]
             #            doc_meta[id].pr = w[3]
             #            print id
             #            print doc_meta[id].url
@@ -126,6 +130,8 @@ def openList(termId, getCache=False):
             data["current_posting_index"] = 0
             return data
     lexicon_node_obj = lexicon_list[termId]
+    if word_list[termId] == "beijing":
+        print 1
     # Open to read the inverted list file.
     list_file = open(pwd + str(lexicon_node_obj.did), "rb")
     # Seek to the start offset of the inverted list information for this term.
@@ -374,10 +380,18 @@ def search_query(query):
     #    print res_q
     for i in reversed(range(0, len(res_q))):
         url = doc_meta[res_q[i][1]].url
+        file_name = doc_meta[res_q[i][1]].file_name
         #        print res_q[i][0]
         #        print res_q[i][1]
         #        print url
-        res.append((res_q[i][0], url, res_q[i][1]))
+
+        # add title and body content in res
+        #url_index
+        file_pwd = "C:\\ubuntu_share\\workspace\\ExtraFile\\data\\all\\"
+        title = parse_title(file_pwd+file_name+".xml")
+        content = parse_content(file_pwd+file_name+".xml")
+
+        res.append((res_q[i][0], url, res_q[i][1], title, content))
         #    print res
 
     display_simple_result(res)
