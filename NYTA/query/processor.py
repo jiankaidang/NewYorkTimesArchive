@@ -130,8 +130,6 @@ def openList(termId, getCache=False):
             data["current_posting_index"] = 0
             return data
     lexicon_node_obj = lexicon_list[termId]
-    if word_list[termId] == "beijing":
-        print 1
     # Open to read the inverted list file.
     list_file = open(pwd + str(lexicon_node_obj.did), "rb")
     # Seek to the start offset of the inverted list information for this term.
@@ -220,7 +218,7 @@ def nextGEQ(list_posting, k_docID):
             size += int(list_posting["meta_data"][meta_index]["chunk_size"])
             # Decode the chunk content.
         chunk_content = decode7bit(
-            list_posting["chunks_str"][size:meta_data[current_chunk_index]["chunk_size"]])
+            list_posting["chunks_str"][size:meta_data[current_chunk_index]["chunk_size"] + size])
         chunk_postings = []
         next_did = -1
         for i in range(0, len(chunk_content), 2):
