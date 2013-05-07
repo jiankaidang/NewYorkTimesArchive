@@ -386,10 +386,26 @@ def search_query(query):
         # add title and body content in res
         #url_index
         file_pwd = "C:\\ubuntu_share\\workspace\\ExtraFile\\data\\all\\"
-        title = parse_title(file_pwd+file_name+".xml")
-        content = parse_content(file_pwd+file_name+".xml")
-
-        res.append((res_q[i][0], url, res_q[i][1], title, content))
+        title = parse_title(file_pwd + file_name + ".xml")
+        content = parse_content(file_pwd + file_name + ".xml")
+        words = content.lower().split()
+        spin = ""
+        for q in query:
+            try:
+                index = words.index(q)
+                start = index - 5
+                if start < 0:
+                    start = 0
+                end = index + 5
+                if end > words.__len__():
+                    end = words.__len__()
+                spin += "..."
+                for str in words[start:end]:
+                    spin += " " + str
+                spin += "..."
+            except Exception:
+                continue
+        res.append((res_q[i][0], url, res_q[i][1], title, spin))
         #    print res
 
     display_simple_result(res)
@@ -412,7 +428,8 @@ def display_simple_result(result_set):
 
 ################## Cache APIs######################
 
-def make_decision_and_do_cache(cache_num=500000, path="frequency.txt"):
+def make_decision_and_do_cache(cache_num=50000,
+                               path="D:\\Note_for_Class\\2013spring\\web-search\\project\\NewYorkTimesArchiveWeb\\NYTA\\query\\frequency.txt"):
 #    This function selects terms to do cache
 #    This function read a bag of words with frequency in common English. In decending order of this frequency, do secache.
     cached_num = 0
@@ -498,7 +515,8 @@ def run():
     print "Loading Geo...\n"
     # loadGeoIndex()
     print "Geo Loaded\n"
-    ################## Main Function######################
+
+################## Main Function######################
 
 
 def loadGeoIndex():
