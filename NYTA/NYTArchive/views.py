@@ -1,15 +1,18 @@
 from django.template import Context
+from django.shortcuts import render
+
 from NYTArchive.JSONResponseMixin import JSONResponseMixin
 from query import processor
-from django.shortcuts import render
 
 
 def geo(request):
-    return JSONResponseMixin().render_to_response(processor.geoMap.keys())
+    return JSONResponseMixin().render_to_response(processor.geoMap)
+
 
 def search(request):
     context = {}
     return render(request, 'basic_search.html', context)
+
 
 def query(request):
     keyword = request.POST['search_box']
@@ -19,9 +22,11 @@ def query(request):
     })
     return render(request, 'basic_search_result.html', context)
 
+
 def search(request):
     context = {}
     return render(request, 'basic_search.html', context)
+
 
 def query(request):
     keyword = request.POST['search_box']

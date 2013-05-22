@@ -59,21 +59,12 @@ google.maps.event.addDomListener(window, 'load', initialize);
 function geo() {
     $.get("/geo/", function (data) {
         console.log(data);
-        $.each(data, function (index, value) {
-            codeAddress(value);
-        });
-    });
-}
-function codeAddress(address) {
-    geocoder.geocode({ 'address': address}, function (results, status) {
-        if (status == google.maps.GeocoderStatus.OK) {
-            map.setCenter(results[0].geometry.location);
-            var marker = new google.maps.Marker({
+        $.each(data, function (location, geo) {
+            new google.maps.Marker({
                 map: map,
-                position: results[0].geometry.location
+                position: new google.maps.LatLng(geo[0], geo[1]),
+                title: location
             });
-        } else {
-            alert('Geocode was not successful for the following reason: ' + status);
-        }
+        });
     });
 }
