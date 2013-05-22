@@ -1,3 +1,5 @@
+import os
+
 __author__ = 'Jiankai Dang'
 from heapq import heappush, heappop
 from math import log
@@ -513,15 +515,16 @@ def run():
     # make_decision_and_do_cache()
     print "Cache done\n"
     print "Loading Geo...\n"
-    # loadGeoIndex()
+    loadGeoIndex()
     print "Geo Loaded\n"
 
 ################## Main Function######################
 
 
 def loadGeoIndex():
-    location_index = open(pwd + "location_index.txt")
+    location_index = open(os.path.join(os.path.dirname(__file__), 'location_geo.txt').replace('\\', '/'))
     geo = location_index.readline()
     while geo:
         geoMap[geo] = location_index.readline().split()
+        location_index.readline()
         geo = location_index.readline()
