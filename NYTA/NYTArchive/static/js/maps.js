@@ -3,35 +3,29 @@
  * Date: 4/24/13
  * Time: 4:24 PM
  */
-var map;
-var geocoder;
+var map, geocoder, heatmapLayer, searchInput = $("#search-input"), searchForm = $("#search-form").submit(function () {
+    heatmapLayer.setMap(searchInput.val() ? null : map);
+    searchInput.blur();
+    return false;
+});
 function initialize() {
     var mapOptions = {
         zoom: 3,
         streetViewControl: false,
         mapTypeControl: false,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        zoomControl: false,
+        panControl: false
     };
     map = new google.maps.Map(document.getElementById('map-canvas'),
         mapOptions);
     geocoder = new google.maps.Geocoder();
-    var myloc = new google.maps.Marker({
-        clickable: false,
-        icon: new google.maps.MarkerImage('http://maps.gstatic.com/mapfiles/mobile/mobileimgs2.png',
-            new google.maps.Size(22, 22),
-            new google.maps.Point(0, 18),
-            new google.maps.Point(11, 11)),
-        shadow: null,
-        zIndex: 999,
-        map: map
-    });
     // Try HTML5 geolocation
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function (position) {
             var pos = new google.maps.LatLng(position.coords.latitude,
                 position.coords.longitude);
             map.setCenter(pos);
-//            myloc.setPosition(pos);
             geo();
         }, function () {
             handleNoGeolocation(true);
@@ -45,9 +39,18 @@ function geo() {
         $.each(data, function (location, geo) {
             heatmapData.push(new google.maps.LatLng(geo[0], geo[1]));
         });
-        new google.maps.visualization.HeatmapLayer({
+        heatmapLayer = new google.maps.visualization.HeatmapLayer({
             data: heatmapData,
             dissipating: false
-        }).setMap(map);
+        });
+        heatmapLayer.setMap(map);
+        searchInput.typeahead({
+            source: Object.keys(data),
+            updater: function (item) {
+                searchInput.val(item);
+                searchForm.submit();
+                return item;
+            }
+        });
     });
 }

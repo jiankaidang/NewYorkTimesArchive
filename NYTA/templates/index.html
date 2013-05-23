@@ -6,6 +6,15 @@
 {% endblock css %}
 {% block content %}
     <div id="map-canvas"></div>
+    <div id="map-search">
+        <form id="search-form">
+            <div class="input-append">
+                <input class="span4" id="search-input" type="text" autocomplete="off">
+                <button class="btn btn-primary" type="submit" id="searchBtn"><i class="icon-search icon-white"></i>
+                </button>
+            </div>
+        </form>
+    </div>
 {% endblock content %}
 {% block js %}
     <script type="text/javascript"

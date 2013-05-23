@@ -15,3 +15,17 @@ html body #map-canvas {
 html body #map-canvas img {
     max-width: none;
 }
+
+html body #map-search {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+html body #map-search #search-form {
+    margin: 0;
+}
+
+html body #map-search #search-form #searchBtn {
+    width: 70px;
+}
