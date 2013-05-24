@@ -525,6 +525,8 @@ def loadGeoIndex():
     location_index = open(os.path.join(os.path.dirname(__file__), 'location_geo.txt').replace('\\', '/'))
     geo = location_index.readline()
     while geo:
-        geoMap[geo] = location_index.readline().split()
-        location_index.readline()
+        geoMap[geo] = {
+            "latLng": location_index.readline().split(),
+            "docs": location_index.readline().split()
+        }
         geo = location_index.readline()
