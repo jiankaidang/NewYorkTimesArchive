@@ -16,8 +16,9 @@
         </form>
         <div class="alert alert-block" id="error-msg">
             <button type="button" class="close" id="close-error-btn">&times;</button>
-            <div><p>We could not understand the location <b
-                    id="error-query"></b></p>
+            <div><p>We could not understand the location
+                <br>
+                <b id="error-query"></b></p>
 
                 <p>Suggestions:</p>
                 <ul>
@@ -26,6 +27,7 @@
                 </ul>
             </div>
         </div>
+        <div id="search-results"></div>
     </div>
 {% endblock content %}
 {% block js %}

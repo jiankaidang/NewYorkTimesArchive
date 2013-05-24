@@ -40,6 +40,7 @@ def query(request):
 
 def searchMaps(request):
     query = request.GET["query"]
+    page = int(request.GET["page"])
     result = []
     for item in processor.geoMap.items():
         try:
@@ -47,11 +48,24 @@ def searchMaps(request):
                 result.append(item)
         except:
             continue
-    if len(result) <= 100:
+    resultLen = len(result)
+    html = ""
+    if resultLen <= 50:
         result.sort(cmpMapsSearchResults, reverse=True)
+        delta = 0
+        if resultLen % 5:
+            delta = 1
+        totalPages = resultLen / 5 + delta
+        result = result[(page - 1) * 5: page * 5]
+        html = render_to_string('maps_results.html', {
+            "result": result,
+            "totalPages": totalPages,
+            "range": range(1, totalPages + 1),
+            "page": page
+        })
     return JSONResponseMixin().render_to_response({
         "meta": result,
-        "html": render_to_string('maps_results.html', {'foo': 'bar'})
+        "html": html
     })
 
 

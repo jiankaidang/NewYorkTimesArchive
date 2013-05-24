@@ -1,0 +1,29 @@
+<table class="table table-hover table-bordered">
+    <tbody>
+    {% for item in result %}
+        <tr data-index="{{ forloop.counter0 }}">
+            <td>
+                <h5>{{ item.0 }}</h5>
+                {% with len=item.1.docs|length %}
+                    <a href="#"><i class="icon-share"></i> mentioned in {{ len }} article{{ len|pluralize }}</a>
+                {% endwith %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% if totalPages > 1 %}
+    <div class="pagination pagination-centered pagination-small">
+        <ul>
+            {% if page > 1 %}
+                <li><a href="#" data-page="1">&laquo;</a></li>
+            {% endif %}
+            {% for num in range %}
+                <li{% if page == num %} class="active" {% endif %}><a href="#" data-page="{{ num }}">{{ num }}</a></li>
+            {% endfor %}
+            {% if page < totalPages %}
+                <li><a href="#" data-page="{{ totalPages }}">&raquo;</a></li>
+            {% endif %}
+        </ul>
+    </div>
+{% endif %}

@@ -1,39 +1,43 @@
 html {
-    height: 100%;
+  height: 100%;
 }
-
 html body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
+  margin: 0;
+  padding: 0;
+  height: 100%;
 }
-
 html body #map-canvas {
-    height: 100%;
+  height: 100%;
 }
-
 html body #map-canvas img {
-    max-width: none;
+  max-width: none;
 }
-
 html body #map-search {
-    position: absolute;
-    top: 20px;
-    left: 20px;
+  position: absolute;
+  top: 20px;
+  left: 20px;
 }
-
 html body #map-search #search-form {
-    margin: 0;
+  margin: 0;
 }
-
 html body #map-search #search-form .input-append {
-    margin-bottom: 5px;
+  margin-bottom: 3px;
 }
-
 html body #map-search #search-form .input-append #searchBtn {
-    width: 70px;
+  width: 70px;
 }
-
 html body #map-search #error-msg {
-    display: none;
+  display: none;
+  width: 320px;
+}
+html body #map-search #search-results {
+  display: none;
+  width: 370px;
+}
+html body #map-search #search-results .table {
+  background: #ffffff;
+  margin-bottom: 1px;
+}
+html body #map-search #search-results .pagination {
+  margin: 0;
 }

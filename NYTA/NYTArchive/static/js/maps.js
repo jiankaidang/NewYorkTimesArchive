@@ -5,13 +5,15 @@
  */
 var map, heatmapLayer, searchInput = $("#search-input"), searchForm = $("#search-form").submit(function () {
     $("#error-msg").hide();
+    $("#search-results").hide();
     var query = searchInput.val().trim();
     searchInput.blur();
     clearMarkers();
     if (query) {
         heatmapLayer.setMap(null);
         $.get("/search/maps/", {
-            query: query
+            query: query,
+            page: page
         }, function (result) {
             var data = result.meta;
             if (!data.length) {
@@ -29,27 +31,42 @@ var map, heatmapLayer, searchInput = $("#search-input"), searchForm = $("#search
                 });
                 heatmapLayer.setData(resultHeatmap);
                 heatmapLayer.setMap(map);
-                fitBounds(bounds);
             } else {
+                var searchResults = $("#search-results").html(result.html).slideDown();
                 $.each(data, function (index, data) {
-                    var latLng = data[1].latLng, position = new google.maps.LatLng(latLng[0], latLng[1]);
-                    markers.push(new google.maps.Marker({
+                    var latLng = data[1].latLng, position = new google.maps.LatLng(latLng[0], latLng[1]), marker = new google.maps.Marker({
                         position: position,
                         map: map,
                         title: data[0],
                         animation: google.maps.Animation.DROP
-                    }));
+                    });
+                    google.maps.event.addListener(marker, 'click', function () {
+                        infoWindow && infoWindow.close();
+                        bouncingMarker && bouncingMarker.setAnimation(null);
+                        infoWindow = new google.maps.InfoWindow({
+                            content: searchResults.find("[data-index=" + index + "] td")[0].innerHTML
+                        });
+                        infoWindow.open(map, marker);
+                        marker.setAnimation(google.maps.Animation.BOUNCE);
+                        bouncingMarker = marker;
+                        map.panTo(bouncingMarker.getPosition());
+                        google.maps.event.addListener(infoWindow, 'closeclick', function () {
+                            bouncingMarker && bouncingMarker.setAnimation(null);
+                        });
+                    });
+                    markers.push(marker);
                     bounds.extend(position);
                 });
-                fitBounds(bounds);
             }
+            fitBounds(bounds);
         });
+        page = 1;
         return false;
     }
     heatmapLayer.setData(heatmapData);
     heatmapLayer.setMap(map);
     return false;
-}), heatmapData = [], currentLocation, markers = [];
+}), heatmapData = [], markers = [], bouncingMarker, page = 1, infoWindow;
 function initialize() {
     var mapOptions = {
         streetViewControl: false,
@@ -104,3 +121,22 @@ function fitBounds(bounds) {
     map.setZoom(zoom);
     map.panTo(bounds.getCenter());
 }
+$("#search-results").on("mouseenter", "tr",function () {
+    var marker = markers[$(this).attr("data-index")];
+    if (marker != bouncingMarker) {
+        infoWindow && infoWindow.close();
+        bouncingMarker && bouncingMarker.setAnimation(null);
+    }
+    bouncingMarker = marker;
+    map.panTo(bouncingMarker.getPosition());
+    bouncingMarker.setAnimation(google.maps.Animation.BOUNCE);
+}).on("mouseleave", "tr",function () {
+        bouncingMarker && bouncingMarker.setAnimation(null);
+    }).on("click", ".pagination a", function () {
+        if ($(this).closest("li").is(".active")) {
+            return false;
+        }
+        page = $(this).attr("data-page");
+        searchForm.submit();
+        return false;
+    });
