@@ -14,10 +14,22 @@
                 </button>
             </div>
         </form>
+        <div class="alert alert-block" id="error-msg">
+            <button type="button" class="close" id="close-error-btn">&times;</button>
+            <div><p>We could not understand the location <b
+                    id="error-query"></b></p>
+
+                <p>Suggestions:</p>
+                <ul>
+                    <li>Make sure your address includes a city or state.</li>
+                    <li>Make sure all city and state names are spelled correctly.</li>
+                </ul>
+            </div>
+        </div>
     </div>
 {% endblock content %}
 {% block js %}
     <script type="text/javascript"
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZCS0VJe3IjzkwhTeR2HJlCJFMEVedtTY&sensor=true&v=3&libraries=visualization"></script>
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZCS0VJe3IjzkwhTeR2HJlCJFMEVedtTY&sensor=false&v=3&libraries=visualization"></script>
     <script type="text/javascript" src="{% static "js/maps.js" %}"></script>
 {% endblock js %}

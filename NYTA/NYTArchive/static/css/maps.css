@@ -26,6 +26,14 @@ html body #map-search #search-form {
     margin: 0;
 }
 
-html body #map-search #search-form #searchBtn {
+html body #map-search #search-form .input-append {
+    margin-bottom: 5px;
+}
+
+html body #map-search #search-form .input-append #searchBtn {
     width: 70px;
+}
+
+html body #map-search #error-msg {
+    display: none;
 }

@@ -20,5 +20,6 @@ urlpatterns = patterns('',
                        url(r'^$', TemplateView.as_view(template_name="index.html"), name='index'),
                        url(r'^geo/$', views.geo, name='geo'),
                        url(r'^search/$', views.search, name='search'),
-                       url(r'^query/$', views.query, name='query')
+                       url(r'^query/$', views.query, name='query'),
+                       url(r'^search/maps/$', views.searchMaps, name='searchMaps')
 )
