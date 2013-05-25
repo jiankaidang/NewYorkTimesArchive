@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
+    <title>Time Line</title>
 </head>
 <body>
-<form action="{% url 'query'  %}" method="post">
+<form action="{% url 'time_line_query'  %}" method="post">
 {% csrf_token %}
     <input type="text" name="search_box"/>
     <input type="submit" value="search" />
 </form>
+
 {% if initial != True %}
     {% if search_result %}
         <ul>

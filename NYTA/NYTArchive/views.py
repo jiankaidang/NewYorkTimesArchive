@@ -16,12 +16,19 @@ def search(request):
 
 
 def query(request):
-    keyword = request.POST['search_box']
-    result = processor.search_query(keyword)
-    context = Context({
-        'search_result': result,
-    })
-    return render(request, 'basic_search_result.html', context)
+    if request.POST.has_key('search_box'):
+        keyword = request.POST['search_box']
+        result = processor.search_query(keyword)
+        context = Context({
+            'initial': False,
+            'search_result': result,
+        })
+        return render(request, 'basic_search_result.html', context)
+    else:
+        context = Context({
+            'initial': True,
+        })
+        return render(request, 'basic_search_result.html', context)
 
 
 def search(request):
@@ -29,13 +36,22 @@ def search(request):
     return render(request, 'basic_search.html', context)
 
 
-def query(request):
-    keyword = request.POST['search_box']
-    result = processor.search_query(keyword)
-    context = Context({
-        'search_result': result,
-    })
-    return render(request, 'basic_search_result.html', context)
+def time_line_query(request):
+    if request.POST.has_key('search_box'):
+        keyword = request.POST['search_box']
+        start = '19990101'
+        end = '20110101'
+        result = processor.timeLine_query(keyword, start, end)
+        context = Context({
+            'initial': False,
+            'search_result': result,
+        })
+        return render(request, 'timeLin_result.html', context)
+    else:
+        context = Context({
+            'initial': True,
+        })
+        return render(request, 'timeLin_result.html', context)
 
 
 def searchMaps(request):

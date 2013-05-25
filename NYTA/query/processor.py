@@ -9,7 +9,7 @@ from nltk.tokenize import wordpunct_tokenize
 
 from encode import decode7bit
 
-from parseXML import parse_title, parse_content
+from parseXML import parse_title, parse_content, parse_time
 
 
 ################## Initialize Lexicon and Doc meta data part######################
@@ -414,6 +414,130 @@ def search_query(query):
     return res
 
 ################## Search APIs######################
+def timeLine_query(query, time_start, time_end):
+    global max_doc_id
+    top = 30
+    res = []
+    # query = query.split()
+    #    print query
+    query = parse(query)
+    qq = []
+    for qt in query:
+        if qt in word_list:
+            qq.append(qt)
+    query = qq
+    #    print "Query are: "
+    #    print query
+    if len(query) == 0:
+        return res
+    ip = []
+    d = []
+    for q in query:
+    #        ip.append(word_list[q])
+        ip.append(openList(word_list[q], True))
+        #    ip = openList(ip)??? openList one term??
+    #    print "ip are: "
+    #    print ip
+
+    if len(ip) == 0:
+        return res
+
+    res_q = [] # heap of #top results
+    num = len(ip)
+    did = 0
+
+    while (did < max_doc_id):
+    #        print did
+        # get next post from shortest list
+        did = nextGEQ(ip[0], did)
+
+        # see if you find entries with same docID in other lists
+        # for (i=1; (i<num) && ((d=nextGEQ(lp[i], did)) == did); i++);
+        d = -1
+        for i in range(1, num):
+            d = nextGEQ(ip[i], did)
+            if d != did:
+                break
+                #            print i
+                #            print d
+                # not in intersection
+        if d > did:
+            did = d
+        else:
+            # docID is in intersection; now get all frequencies
+            # for (i=0; i<num; i++)  f[i] = getFreq(lp[i], did);
+            f = []
+            for i in range(0, num):
+                f.append(getFreq(ip[i]))
+                #            print "get one page, id: "
+            #            print did
+            # compute BM25 score from frequencies and other data
+            temp = compute_score(query, did, f)
+            #            print "score: "
+            #            print temp
+            if did >= max_doc_id:
+                break
+            if len(res_q) < top:
+                heappush(res_q, (temp, did))
+            elif res_q[0][0] < temp:
+                heappop(res_q)
+                heappush(res_q, (temp, did))
+                # to do top10, using priority queue
+            #            print "DID:!!!!"
+            #            print did
+            # and increase did to search for next post
+            did = did + 1
+
+            #    for i in range(0, num):
+            #        closeList(ip[i])
+            #    print res_q
+    res_q = sorted(res_q, key=lambda tup: tup[0])
+    #    print res_q
+    for i in reversed(range(0, len(res_q))):
+        url = doc_meta[res_q[i][1]].url
+        file_name = doc_meta[res_q[i][1]].file_name
+        #        print res_q[i][0]
+        #        print res_q[i][1]
+        #        print url
+
+        # add title and body content in res
+        #url_index
+        file_pwd = "C:\\ubuntu_share\\workspace\\ExtraFile\\data\\all\\"
+        title = parse_title(file_pwd + file_name + ".xml")
+        content = parse_content(file_pwd + file_name + ".xml")
+        publish_time = parse_time(file_pwd + file_name + ".xml")
+        publish_time = publish_time[0:8]
+        # print publish_time
+        # print time_start
+        # print time_end
+        # print 'next'
+        if (publish_time > time_end or publish_time < time_start):
+            continue
+        words = content.lower().split()
+        spin = ""
+        for q in query:
+            try:
+                index = words.index(q)
+                start = index - 5
+                if start < 0:
+                    start = 0
+                end = index + 5
+                if end > words.__len__():
+                    end = words.__len__()
+                spin += "..."
+                for str in words[start:end]:
+                    spin += " " + str
+                spin += "..."
+            except Exception:
+                continue
+        res.append((res_q[i][0], url, res_q[i][1], title, spin))
+        # print len(res)
+        if len(res) >9:
+            break
+        #    print res
+
+    display_simple_result(res)
+    return res
 
 ################## Display APIs######################
 

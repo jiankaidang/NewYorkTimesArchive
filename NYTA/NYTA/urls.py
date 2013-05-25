@@ -21,5 +21,7 @@ urlpatterns = patterns('',
                        url(r'^geo/$', views.geo, name='geo'),
                        url(r'^search/$', views.search, name='search'),
                        url(r'^query/$', views.query, name='query'),
+                       url(r'^time_line_query/$', views.time_line_query, name='time_line_query'),
+
                        url(r'^search/maps/$', views.searchMaps, name='searchMaps')
 )

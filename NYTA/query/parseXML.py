@@ -24,7 +24,4 @@ def parse_time(path):
     root = tree.getroot()
     for attr in root.iter('pubdata'):
         time = attr.get("date.publication")
-        print time
     return time
-
-parse_time("C:\\ubuntu_share\\workspace\\ExtraFile\\data\\all\\0000104.xml")
