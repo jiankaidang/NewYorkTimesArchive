@@ -18,3 +18,13 @@ def parse_content(path):
             tmp = content.text
             content_str +=tmp
     return content_str
+def parse_time(path):
+    time = ''
+    tree = ET.parse(path)
+    root = tree.getroot()
+    for attr in root.iter('pubdata'):
+        time = attr.get("date.publication")
+        print time
+    return time
+
+parse_time("C:\\ubuntu_share\\workspace\\ExtraFile\\data\\all\\0000104.xml")
