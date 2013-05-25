@@ -1,3 +1,4 @@
+from xml.etree.ElementTree import parse
 from django.template import Context
 from django.shortcuts import render
 from django.template.loader import render_to_string
@@ -87,3 +88,35 @@ def searchMaps(request):
 
 def cmpMapsSearchResults(result1, result2):
     return len(result1[1]["docs"]) - len(result2[1]["docs"])
+
+
+def searchLocation(request):
+    location = request.GET["location"]
+    articlePage = int(request.GET["articlePage"])
+    result = []
+    docs = processor.geoMap[location]["docs"]
+    docs.sort(reverse=True)
+    doc_meta = processor.doc_meta
+    for docId in docs:
+        # doc = doc_meta[int(docId)]
+        # root = parse(
+        #     "/Users/jiankaidang/Documents/WebSearchEngines/backup_nyt_corpus/data/all/" + doc.file_name + ".xml").getroot()
+        root = parse(
+            "/Users/jiankaidang/Documents/WebSearchEngines/backup_nyt_corpus/data/all/" + '%(docId)07d' % {
+                "docId": int(docId)
+            } + ".xml").getroot()
+        result.append({
+            # "url": doc.url,
+            "url": root.findall('./head/pubdata')[0].get('ex-ref'),
+            "hedline": root.findall('./body[1]/body.head/hedline/hl1')[0].text,
+            "lead_paragraph": root.findall('./body/body.content/block[@class="full_text"]/p')[0].text
+        })
+    html = render_to_string('location_results.html', {
+        "location": location,
+        "len": len(docs),
+        "result": result,
+        # "totalPages": totalPages,
+        # "range": range(1, totalPages + 1),
+        # "page": page
+    })
+    return JSONResponseMixin().render_to_response(html)

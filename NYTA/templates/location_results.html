@@ -1,0 +1,37 @@
+<table class="table table-bordered">
+    <thead class="alert alert-success">
+    <tr>
+        <th>
+            <em>{{ location }}</em> was mentioned in {{ len }} article{{ len|pluralize }}
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in result %}
+        <tr>
+            <td>
+                <h5>
+                    <a href="{{ item.url }}" target="_blank">{{ item.hedline }}</a>
+                </h5>
+
+                <p class="article-content">{{ item.lead_paragraph }}</p>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{#{% if totalPages > 1 %}#}
+{#    <div class="pagination pagination-centered pagination-small">#}
+{#        <ul>#}
+{#            {% if page > 1 %}#}
+{#                <li><a href="#" data-page="1">&laquo;</a></li>#}
+{#            {% endif %}#}
+{#            {% for num in range %}#}
+{#                <li{% if page == num %} class="active" {% endif %}><a href="#" data-page="{{ num }}">{{ num }}</a></li>#}
+{#            {% endfor %}#}
+{#            {% if page < totalPages %}#}
+{#                <li><a href="#" data-page="{{ totalPages }}">&raquo;</a></li>#}
+{#            {% endif %}#}
+{#        </ul>#}
+{#    </div>#}
+{#{% endif %}#}

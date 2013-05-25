@@ -5,7 +5,7 @@
  */
 var map, heatmapLayer, searchInput = $("#search-input"), searchForm = $("#search-form").submit(function () {
     $("#error-msg").hide();
-    $("#search-results").hide();
+    $(".results-container").hide();
     var query = searchInput.val().trim();
     searchInput.blur();
     clearMarkers();
@@ -44,7 +44,7 @@ var map, heatmapLayer, searchInput = $("#search-input"), searchForm = $("#search
                         infoWindow && infoWindow.close();
                         bouncingMarker && bouncingMarker.setAnimation(null);
                         infoWindow = new google.maps.InfoWindow({
-                            content: searchResults.find("[data-index=" + index + "] td")[0].innerHTML
+                            content: searchResults.find("[data-index=" + index + "] td").html()
                         });
                         infoWindow.open(map, marker);
                         marker.setAnimation(google.maps.Animation.BOUNCE);
@@ -66,7 +66,7 @@ var map, heatmapLayer, searchInput = $("#search-input"), searchForm = $("#search
     heatmapLayer.setData(heatmapData);
     heatmapLayer.setMap(map);
     return false;
-}), heatmapData = [], markers = [], bouncingMarker, page = 1, infoWindow;
+}), heatmapData = [], markers = [], bouncingMarker, page = 1, infoWindow, articlePage = 1;
 function initialize() {
     var mapOptions = {
         streetViewControl: false,
@@ -121,7 +121,7 @@ function fitBounds(bounds) {
     map.setZoom(zoom);
     map.panTo(bounds.getCenter());
 }
-$("#search-results").on("mouseenter", "tr",function () {
+$("#search-results").on("mouseenter", "tr.search-map",function () {
     var marker = markers[$(this).attr("data-index")];
     if (marker != bouncingMarker) {
         infoWindow && infoWindow.close();
@@ -130,9 +130,9 @@ $("#search-results").on("mouseenter", "tr",function () {
     bouncingMarker = marker;
     map.panTo(bouncingMarker.getPosition());
     bouncingMarker.setAnimation(google.maps.Animation.BOUNCE);
-}).on("mouseleave", "tr",function () {
+}).on("mouseleave", "tr.search-map",function () {
         bouncingMarker && bouncingMarker.setAnimation(null);
-    }).on("click", ".pagination a", function () {
+    }).on("click", ".pagination.search-map a", function () {
         if ($(this).closest("li").is(".active")) {
             return false;
         }
@@ -140,3 +140,13 @@ $("#search-results").on("mouseenter", "tr",function () {
         searchForm.submit();
         return false;
     });
+$(document.body).on("click", ".search-location", function () {
+    $(".results-container").hide();
+    $.get("/search/location/", {
+        location: $(this).prev().html(),
+        articlePage: articlePage
+    }, function (data) {
+        $("#search-location").html(data).slideDown();
+    });
+    return false;
+});

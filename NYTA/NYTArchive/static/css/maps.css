@@ -30,14 +30,18 @@ html body #map-search #error-msg {
   display: none;
   width: 320px;
 }
-html body #map-search #search-results {
+html body #map-search .results-container {
   display: none;
   width: 370px;
 }
-html body #map-search #search-results .table {
+html body #map-search .results-container .table {
   background: #ffffff;
   margin-bottom: 1px;
 }
-html body #map-search #search-results .pagination {
+html body #map-search .results-container .pagination {
   margin: 0;
+}
+html body #map-search .results-container .article-content {
+  max-height: 44px;
+  overflow: hidden;
 }

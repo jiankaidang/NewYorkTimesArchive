@@ -623,16 +623,16 @@ lexicon_list = {}
 word_list = {}
 cached_data = {}
 max_doc_id = 0
-# pwd = "/Users/jiankaidang/Documents/WebSearchEngines/NYTAData/"
-pwd = "C:\\ubuntu_share\\workspace\\NewYorkTime\\test\\"
+pwd = "/Users/jiankaidang/Documents/WebSearchEngines/NYTAData/"
+# pwd = "C:\\ubuntu_share\\workspace\\NewYorkTime\\test\\"
 geoMap = {}
 
 
 def run():
     print "Building Doc Meta Data...\n"
-    build_doc_meta_data(pwd + "url_index.txt")
+    # build_doc_meta_data(pwd + "url_index.txt")
     print "Building Lexicon Meta Data..."
-    build_lexicon(pwd + "lexicon_index.txt")
+    # build_lexicon(pwd + "lexicon_index.txt")
     global max_doc_id
     max_doc_id = len(doc_list)
     print "Caching...\n"
