@@ -1,0 +1,12 @@
+{% load staticfiles %}
+<div>
+    <img src="{% static "img/nytlogo379x64.gif" %}">
+</div>
+<form action="{% url 'query' %}" method="post" id="search-form">
+    {% csrf_token %}
+    <div class="input-append">
+        <input class="span6" name="search_box" type="text" autocomplete="off" value="{{ keyword }}">
+        <button class="btn btn-primary" type="submit" id="searchBtn"><i class="icon-search icon-white"></i>
+        </button>
+    </div>
+</form>

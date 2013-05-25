@@ -23,6 +23,7 @@ def query(request):
         context = Context({
             'initial': False,
             'search_result': result,
+            "keyword": keyword
         })
         return render(request, 'basic_search_result.html', context)
     else:
@@ -40,8 +41,8 @@ def search(request):
 def time_line_query(request):
     if request.POST.has_key('search_box'):
         keyword = request.POST['search_box']
-        start = '19990101'
-        end = '20110101'
+        start = request.POST['start']
+        end = request.POST['end']
         result = processor.timeLine_query(keyword, start, end)
         context = Context({
             'initial': False,

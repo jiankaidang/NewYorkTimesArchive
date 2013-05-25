@@ -1,27 +1,88 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title></title>
-</head>
-<body>
-<form action="{% url 'query'  %}" method="post">
-{% csrf_token %}
-    <input type="text" name="search_box"/>
-    <input type="submit" value="search" />
-</form>
-{% if initial != True %}
-    {% if search_result %}
-        <ul>
-            {% for res in search_result %}
-                <li>
-                    <a href="{{ res.1 }}">{{ res.3 }}</a>
-                    <p>{{ res.4 }}</p>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No result.</p>
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}{{ test }}Basic Search{% endblock title %}
+{% block css %}
+    <link href="{% static "css/basic.css" %}" rel="stylesheet">
+{% endblock css %}
+{% block content %}
+    <div class="content">
+        {% include "basic_form.html" %}
+    </div>
+    {% if initial != True %}
+        {% if search_result %}
+            <ul class="unstyled search-result">
+                {% for res in search_result %}
+                    <li>
+                        <h5>
+                            <a href="{{ res.1 }}" target="_blank">{{ res.3 }}</a>
+                        </h5>
+
+                        <p>{{ res.4 }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No result.</p>
+        {% endif %}
     {% endif %}
-{% endif %}
-</body>
-</html>
+    <div class="pagination pagination-centered">
+        <ul>
+            <li class="disabled"><a href="#">&laquo;</a></li>
+            <li class="active"><a href="#">1</a></li>
+            <li><a href="#">2</a></li>
+            <li><a href="#">3</a></li>
+            <li><a href="#">4</a></li>
+            <li><a href="#">5</a></li>
+            <li><a href="#">6</a></li>
+            <li><a href="#">7</a></li>
+            <li><a href="#">8</a></li>
+            <li><a href="#">9</a></li>
+            <li><a href="#">10</a></li>
+            <li><a href="#">&raquo;</a></li>
+        </ul>
+    </div>
+    <div class="tabbable tabs-left time">
+        <ul class="nav nav-tabs">
+            <li><a href="#lB" data-toggle="tab">All</a></li>
+            <li class="active"><a href="#lA" data-toggle="tab">1987</a></li>
+            <li class=""><a href="#lA" data-toggle="tab">1988</a></li>
+            <li class=""><a href="#lA" data-toggle="tab">1990</a></li>
+            <li class=""><a href="#lA" data-toggle="tab">1991</a></li>
+            <li class=""><a href="#lA" data-toggle="tab">1992</a></li>
+            <li class=""><a href="#lA" data-toggle="tab">1993</a></li>
+            <li class=""><a href="#lA" data-toggle="tab">1994</a></li>
+            <li class=""><a href="#lA" data-toggle="tab">1995</a></li>
+            <li class=""><a href="#lA" data-toggle="tab">1996</a></li>
+            <li class=""><a href="#lA" data-toggle="tab">1997</a></li>
+            <li class=""><a href="#lA" data-toggle="tab">1998</a></li>
+            <li class=""><a href="#lA" data-toggle="tab">1999</a></li>
+            <li class=""><a href="#lA" data-toggle="tab">2000</a></li>
+            <li class=""><a href="#lA" data-toggle="tab">2001</a></li>
+            <li class=""><a href="#lA" data-toggle="tab">2002</a></li>
+            <li class=""><a href="#lA" data-toggle="tab">2003</a></li>
+            <li class=""><a href="#lA" data-toggle="tab">2004</a></li>
+            <li class=""><a href="#lA" data-toggle="tab">2005</a></li>
+            <li class=""><a href="#lA" data-toggle="tab">2006</a></li>
+            <li class=""><a href="#lA" data-toggle="tab">2007</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane" id="lA">
+                <ul class="nav nav-pills nav-stacked">
+                    <li><a href="#">January</a></li>
+                    <li><a href="#">February</a></li>
+                    <li><a href="#">March</a></li>
+                    <li><a href="#">April</a></li>
+                    <li class="active"><a href="#">May</a></li>
+                    <li><a href="#">June</a></li>
+                    <li><a href="#">July</a></li>
+                    <li><a href="#">August</a></li>
+                    <li><a href="#">September</a></li>
+                    <li><a href="#">October</a></li>
+                    <li><a href="#">November</a></li>
+                    <li><a href="#">December</a></li>
+                </ul>
+            </div>
+            <div class="tab-pane" id="lB"></div>
+        </div>
+    </div>
+{% endblock content %}

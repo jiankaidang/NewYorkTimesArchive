@@ -401,10 +401,10 @@ def search_query(query):
                 end = index + 5
                 if end > words.__len__():
                     end = words.__len__()
-                spin += "..."
+                # spin += "..."
                 for str in words[start:end]:
-                    spin += " " + str
-                spin += "..."
+                    spin += "  " + str
+                spin += "......"
             except Exception:
                 continue
         res.append((res_q[i][0], url, res_q[i][1], title, spin))
@@ -532,9 +532,9 @@ def timeLine_query(query, time_start, time_end):
                 continue
         res.append((res_q[i][0], url, res_q[i][1], title, spin))
         # print len(res)
-        if len(res) >9:
+        if len(res) > 9:
             break
-        #    print res
+            #    print res
 
     display_simple_result(res)
     return res
@@ -623,16 +623,16 @@ lexicon_list = {}
 word_list = {}
 cached_data = {}
 max_doc_id = 0
-pwd = "/Users/jiankaidang/Documents/WebSearchEngines/NYTAData/"
-# pwd = "C:\\ubuntu_share\\workspace\\NewYorkTime\\test\\"
+# pwd = "/Users/jiankaidang/Documents/WebSearchEngines/NYTAData/"
+pwd = "C:\\ubuntu_share\\workspace\\NewYorkTime\\test\\"
 geoMap = {}
 
 
 def run():
     print "Building Doc Meta Data...\n"
-    # build_doc_meta_data(pwd + "url_index.txt")
+    build_doc_meta_data(pwd + "url_index.txt")
     print "Building Lexicon Meta Data..."
-    # build_lexicon(pwd + "lexicon_index.txt")
+    build_lexicon(pwd + "lexicon_index.txt")
     global max_doc_id
     max_doc_id = len(doc_list)
     print "Caching...\n"

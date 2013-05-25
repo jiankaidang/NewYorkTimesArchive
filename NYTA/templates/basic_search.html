@@ -1,13 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>basic search</title>
-</head>
-<body>
-<form action="{% url 'query'  %}" method="post">
-{% csrf_token %}
-    <input type="text" name="search_box"/>
-    <input type="submit" value="search" />
-</form>
-</body>
-</html>
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}{{ test }}Basic Search{% endblock title %}
+{% block css %}
+    <link href="{% static "css/search_form.css" %}" rel="stylesheet">
+{% endblock css %}
+{% block content %}
+    <div class="content">
+        {% include "basic_form.html" %}
+    </div>
+{% endblock content %}
