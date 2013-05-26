@@ -1,0 +1,15 @@
+.content {
+  width: 640px;
+  text-align: center;
+  top: 200px;
+  position: relative;
+  left: 50%;
+  margin-left: -320px;
+}
+.content #search-form {
+  position: relative;
+  top: 40px;
+}
+.content #search-form .input-append #searchBtn {
+  width: 70px;
+}
