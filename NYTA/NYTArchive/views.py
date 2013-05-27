@@ -110,7 +110,7 @@ def searchLocation(request):
             # "url": doc.url,
             "url": root.findall('./head/pubdata')[0].get('ex-ref'),
             "hedline": root.findall('./body[1]/body.head/hedline/hl1')[0].text,
-            "lead_paragraph": root.findall('./body/body.content/block[@class="full_text"]/p')[0].text
+            "lead_paragraph": root.findall('./body/body.content/block[@class="full_text"]/p')[0].text[:95] + " ..."
         })
     html = render_to_string('location_results.html', {
         "location": location,
