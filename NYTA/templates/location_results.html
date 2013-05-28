@@ -8,30 +8,30 @@
     </thead>
     <tbody>
     {% for item in result %}
-        <tr>
-            <td>
-                <h5>
-                    <a href="{{ item.url }}" target="_blank">{{ item.hedline }}</a>
-                </h5>
+    <tr>
+        <td>
+            <h5>
+                <a href="{{ item.url }}" target="_blank">{{ item.hedline }}</a>
+            </h5>
 
-                <p class="article-content">{{ item.lead_paragraph }}</p>
-            </td>
-        </tr>
+            <p class="article-content">{{ item.lead_paragraph }}</p>
+        </td>
+    </tr>
     {% endfor %}
     </tbody>
 </table>
-{#{% if totalPages > 1 %}#}
-{#    <div class="pagination pagination-centered pagination-small">#}
-{#        <ul>#}
-{#            {% if page > 1 %}#}
-{#                <li><a href="#" data-page="1">&laquo;</a></li>#}
-{#            {% endif %}#}
-{#            {% for num in range %}#}
-{#                <li{% if page == num %} class="active" {% endif %}><a href="#" data-page="{{ num }}">{{ num }}</a></li>#}
-{#            {% endfor %}#}
-{#            {% if page < totalPages %}#}
-{#                <li><a href="#" data-page="{{ totalPages }}">&raquo;</a></li>#}
-{#            {% endif %}#}
-{#        </ul>#}
-{#    </div>#}
-{#{% endif %}#}
+<div class="pagination pagination-centered pagination-small">
+    <ul>
+        <li class="active"><a href="#">1</a></li>
+        <li><a href="#">2</a></li>
+        <li><a href="#">3</a></li>
+        <li><a href="#">4</a></li>
+        <li><a href="#">5</a></li>
+        <li><a href="#">6</a></li>
+        <li><a href="#">7</a></li>
+        <li><a href="#">8</a></li>
+        <li><a href="#">9</a></li>
+        <li><a href="#">10</a></li>
+        <li><a href="#">&raquo;</a></li>
+    </ul>
+</div>
